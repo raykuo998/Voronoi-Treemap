@@ -226,8 +226,8 @@
             <p>本研究比較不同的<strong>加權 Voronoi</strong> 實現方案，探討如何讓 Voronoi cell 的面積更接近實際權重分配，使視覺化更乾淨、更專業。</p>
             <p>靈感來源：NATO 國防支出圖表 - 它展示了極其乾淨的多邊形分割效果。</p>
             <p><strong>關鍵發現</strong>：NATO 圖表之所以乾淨，最重要的是使用了<strong>分層計算</strong>（先分大區域，再分細節），而不只是加權算法！</p>
-            <p style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px;">
-                🏆 <strong>推薦方案</strong>：分層計算版 - 根視圖只顯示 4 個大洲，點擊後才顯示國家，視覺效果最接近 NATO！
+            <p style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 10px;">
+                🏆 <strong>推薦方案</strong>：嵌套分層版 - 顯示所有國家，但同大洲聚集成連貫區域，最接近 NATO 圖表效果！
             </p>
         </div>
 
@@ -331,13 +331,21 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr style="background: #fef3c7;">
+                        <td><strong>🎯 嵌套分層（最像 NATO）</strong></td>
+                        <td class="rating">⭐⭐⭐</td>
+                        <td class="rating">⭐⭐⭐⭐⭐</td>
+                        <td class="rating">⭐⭐⭐⭐</td>
+                        <td>❌</td>
+                        <td class="rating">⭐⭐⭐⭐⭐</td>
+                    </tr>
                     <tr style="background: #f0fdf4;">
-                        <td><strong>🏛️ 分層計算</strong></td>
+                        <td><strong>🏛️ 分層計算（只顯示大洲）</strong></td>
                         <td class="rating">⭐⭐</td>
                         <td class="rating">⭐⭐⭐⭐⭐</td>
                         <td class="rating">⭐⭐⭐⭐⭐</td>
                         <td>❌</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
+                        <td class="rating">⭐⭐⭐⭐</td>
                     </tr>
                     <tr>
                         <td><strong>原始版本</strong></td>
@@ -374,13 +382,13 @@
                 </tbody>
             </table>
             
-            <div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border-radius: 8px; border: 2px solid #10b981;">
+            <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px; border: 2px solid #f59e0b;">
                 <h3 style="color: #333; margin-bottom: 15px;">💡 使用建議</h3>
                 <ul style="color: #666; line-height: 1.8;">
-                    <li><strong>🏆 追求乾淨視覺（推薦！）</strong>：分層計算版 - 類似 NATO 圖表的效果</li>
+                    <li><strong>🏆 最像 NATO 圖表（推薦！）</strong>：嵌套分層版 - 顯示所有國家，但按大洲聚集</li>
+                    <li><strong>追求極簡視覺</strong>：分層計算版 - 只顯示大洲，點擊進入詳情</li>
                     <li><strong>快速原型</strong>：使用原始版本</li>
                     <li><strong>不想引入外部庫</strong>：Lloyd's Relaxation（最佳平衡）</li>
-                    <li><strong>追求自然效果</strong>：Force Layout</li>
                     <li><strong>專業項目/精確需求</strong>：D3 Voronoi Treemap 函式庫</li>
                 </ul>
             </div>
