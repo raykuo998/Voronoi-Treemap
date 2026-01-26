@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voronoi Treemap - Nested Hierarchical View</title>
+    <title>Programming Skills Map - Interactive Skill Tree</title>
     <style>
         * {
             margin: 0;
@@ -240,15 +240,15 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="mainTitle">🌍 Voronoi Treemap - Nested Hierarchy</h1>
-        <p class="subtitle" id="subtitle">Countries grouped by continent - NATO-style visualization</p>
+        <h1 id="mainTitle">💻 Programming Skills Map</h1>
+        <p class="subtitle" id="subtitle">Skills grouped by domain - Interactive skill tree visualization</p>
         <div style="text-align: center;">
-            <span class="method-badge">🏛️ Nested Structure: Countries within Continental Regions</span>
+            <span class="method-badge">🎯 Skill Map: Competencies within Technical Domains</span>
         </div>
 
         <div class="controls" id="controls">
             <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
-            <button id="resetBtn" onclick="reset()">⌂ Reset to World View</button>
+            <button id="resetBtn" onclick="reset()">⌂ Reset to Overview</button>
             <span class="breadcrumb" id="breadcrumb"></span>
         </div>
 
@@ -257,66 +257,66 @@
         </div>
 
         <div class="instructions">
-            <h3>Nested Hierarchy Features</h3>
+            <h3>Skill Map Features</h3>
             <ul>
-                <li>All countries displayed in the root view</li>
-                <li>Countries from the same continent grouped into contiguous regions (NATO-style)</li>
-                <li>Continents calculated first, then countries distributed within regions</li>
-                <li>Click any country to zoom into its continent view</li>
-                <li>Area represents population proportion</li>
+                <li>All skills displayed in the root view</li>
+                <li>Skills from the same domain grouped into contiguous regions (roadmap.sh-style)</li>
+                <li>Domains calculated first, then skills distributed within regions</li>
+                <li>Click any skill to zoom into its domain view</li>
+                <li>Area represents skill importance/proficiency</li>
             </ul>
         </div>
 
         <div class="instructions">
             <h3>🔧 Technical Implementation</h3>
-            <p style="color: #666; margin-bottom: 15px;">NATO-style visualization using weighted Voronoi Treemap with continental grouping.</p>
+            <p style="color: #666; margin-bottom: 15px;">roadmap.sh-style visualization using weighted Voronoi Treemap with domain grouping.</p>
             
-            <h4>🌍 Four-Continent Grouping Strategy:</h4>
+            <h4>💼 Four-Domain Grouping Strategy:</h4>
             <ul>
-                <li><strong>Why 4 continents instead of 7?</strong> Creates cleaner, more distinct regional clusters similar to NATO defense spending visualization</li>
-                <li><strong>Selected regions:</strong>
+                <li><strong>Why domain grouping?</strong> Creates clear skill clusters by technical area, similar to roadmap.sh's domain organization</li>
+                <li><strong>Selected domains:</strong>
                     <ul>
-                        <li><strong>Asia</strong> - 10 most populous countries (China, India, Indonesia, etc.)</li>
-                        <li><strong>Americas</strong> - North + South America (USA, Brazil, Mexico, etc.)</li>
-                        <li><strong>Africa</strong> - 5 major population centers (Nigeria, Ethiopia, Egypt, etc.)</li>
-                        <li><strong>Europe</strong> - Including Russia (Russia, Germany, UK, France, etc.)</li>
+                        <li><strong>Frontend</strong> - UI/UX technologies (React, Vue, TypeScript, etc.)</li>
+                        <li><strong>Backend</strong> - Server-side tech (Node.js, Python, databases, etc.)</li>
+                        <li><strong>DevOps</strong> - Infrastructure & deployment (Docker, K8s, AWS, etc.)</li>
+                        <li><strong>Mobile</strong> - Mobile development (React Native, Flutter, Swift, etc.)</li>
                     </ul>
                 </li>
-                <li><strong>Data structure:</strong> Two-level hierarchy - continents as parent nodes, countries as leaf nodes</li>
+                <li><strong>Data structure:</strong> Two-level hierarchy - domains as parent nodes, skills as leaf nodes</li>
             </ul>
 
-            <h4>🎯 NATO-Style Effect Implementation:</h4>
+            <h4>🎯 roadmap.sh-Style Effect Implementation:</h4>
             <ul>
-                <li><strong>Step 1 - Continental Voronoi:</strong> Calculate 4 large continent polygons using weighted treemap
+                <li><strong>Step 1 - Domain Voronoi:</strong> Calculate 4 large domain polygons using weighted treemap
                     <ul>
-                        <li>Each continent gets area proportional to its total population</li>
-                        <li>Creates distinct regional boundaries (like NATO's alliance groupings)</li>
+                        <li>Each domain gets area proportional to its total skill importance</li>
+                        <li>Creates distinct regional boundaries (like roadmap.sh's skill groupings)</li>
                     </ul>
                 </li>
-                <li><strong>Step 2 - Nested Country Distribution:</strong> Within each continent polygon, distribute countries
+                <li><strong>Step 2 - Nested Skill Distribution:</strong> Within each domain polygon, distribute skills
                     <ul>
-                        <li>Countries only appear within their parent continent's boundary</li>
-                        <li>Maintains visual grouping - all Asian countries cluster together</li>
-                        <li>Similar to how NATO chart groups members by region</li>
+                        <li>Skills only appear within their parent domain's boundary</li>
+                        <li>Maintains visual grouping - all Frontend skills cluster together</li>
+                        <li>Similar to how roadmap.sh groups related technologies</li>
                     </ul>
                 </li>
-                <li><strong>Step 3 - Continent Borders:</strong> Draw thick borders (#333, 3px) around continent polygons
+                <li><strong>Step 3 - Domain Borders:</strong> Draw thick borders (#333, 3px) around domain polygons
                     <ul>
-                        <li>Creates clear visual separation between continental regions</li>
+                        <li>Creates clear visual separation between technical domains</li>
                         <li>Labels placed outside circle using polygon centroids</li>
                     </ul>
                 </li>
             </ul>
 
             <h4>⚙️ Core Algorithm:</h4>
-            <pre><code>// 1. Create hierarchical data structure
-const worldData = {
-    name: "World",
+            <pre><code>// 1. Create hierarchical skill data structure
+const skillData = {
+    name: "Tech Skills",
     children: [
-        { name: "Asia", children: [/* 10 countries */] },
-        { name: "Americas", children: [/* 5 countries */] },
-        { name: "Africa", children: [/* 5 countries */] },
-        { name: "Europe", children: [/* 6 countries */] }
+        { name: "Frontend", children: [/* React, Vue, etc. */] },
+        { name: "Backend", children: [/* Node.js, Python, etc. */] },
+        { name: "DevOps", children: [/* Docker, K8s, etc. */] },
+        { name: "Mobile", children: [/* React Native, Flutter, etc. */] }
     ]
 };
 
@@ -329,9 +329,9 @@ const voronoiTreemap = d3.voronoiTreemap()
 
 voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
-// 3. Result: root.children[] = continents with polygons
-//            root.leaves() = countries with polygons
-//    Each country.polygon is automatically CLIPPED to its parent continent!</code></pre>
+// 3. Result: root.children[] = domains with polygons
+//            root.leaves() = skills with polygons
+//    Each skill.polygon is automatically CLIPPED to its parent domain!</code></pre>
 
             <h4>🔑 Key Difference from Standard Approach:</h4>
             <ul>
@@ -355,19 +355,19 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             <ol>
                 <li><strong>Area proportionality failure:</strong>
                     <ul>
-                        <li><strong>Symptom:</strong> China (1.4B) smaller than Iran (84M)</li>
+                        <li><strong>Symptom:</strong> High-value items appearing smaller than low-value items</li>
                         <li><strong>Cause:</strong> Used <code>d3.Delaunay</code> which ignores weights</li>
-                        <li><strong>Evidence from logs:</strong> <code>{"countryName":"China","expectedRatio":"35.7%","actualArea":"8.6%"}</code></li>
+                        <li><strong>Evidence from logs:</strong> Expected vs actual area mismatch (35.7% → 8.6%)</li>
                         <li><strong>Fix:</strong> Replaced with <code>d3.voronoiTreemap()</code></li>
-                        <li><strong>Result:</strong> China now correctly occupies ~24.5% of total area</li>
+                        <li><strong>Result:</strong> Areas now correctly match weight proportions</li>
                     </ul>
                 </li>
-                <li><strong>Continent labels positioned at origin (0,0):</strong>
+                <li><strong>Domain labels positioned at origin (0,0):</strong>
                     <ul>
-                        <li><strong>Symptom:</strong> All 4 continent labels stuck in top-left corner</li>
-                        <li><strong>Cause:</strong> <code>voronoiTreemap()</code> doesn't preserve <code>continent.x/y</code> from pack layout</li>
+                        <li><strong>Symptom:</strong> All 4 domain labels stuck in top-left corner</li>
+                        <li><strong>Cause:</strong> <code>voronoiTreemap()</code> doesn't preserve <code>x/y</code> coordinates from pack layout</li>
                         <li><strong>Evidence from logs:</strong> <code>{"x":undefined,"y":undefined,"angle":null,"labelX":null}</code></li>
-                        <li><strong>Fix:</strong> Changed from <code>Math.atan2(continent.y - radius, continent.x - radius)</code> to <code>Math.atan2(centroid[1], centroid[0])</code> where <code>centroid = d3.polygonCentroid(continent.polygon)</code></li>
+                        <li><strong>Fix:</strong> Changed to use <code>d3.polygonCentroid(domain.polygon)</code> for angle calculation</li>
                         <li><strong>Result:</strong> Labels correctly distributed around circle perimeter</li>
                     </ul>
                 </li>
@@ -387,7 +387,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
             <h4>⚡ Performance Notes:</h4>
             <ul>
-                <li>Initial calculation: ~2-3 seconds for 26 countries across 4 continents</li>
+                <li>Initial calculation: ~2-3 seconds for 33 skills across 4 domains</li>
                 <li>Iterative algorithm may run up to 100 iterations to achieve convergence</li>
                 <li>Convergence ratio of 0.001 ensures area accuracy within 0.1%</li>
                 <li>Use 64-point polygon for smooth circular clipping</li>
@@ -409,72 +409,79 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
     </script>
 
     <script>
-        // World population data
-        const worldData = {
-            name: "World",
+        // Programming skills data
+        const skillData = {
+            name: "Tech Skills",
             children: [
                 {
-                    name: "Asia",
+                    name: "Frontend",
                     children: [
-                        { name: "China", value: 1411778724 },
-                        { name: "India", value: 1380004385 },
-                        { name: "Indonesia", value: 273523615 },
-                        { name: "Pakistan", value: 220892340 },
-                        { name: "Bangladesh", value: 164689383 },
-                        { name: "Japan", value: 126476461 },
-                        { name: "Philippines", value: 109581078 },
-                        { name: "Vietnam", value: 97338579 },
-                        { name: "Turkey", value: 84339067 },
-                        { name: "Iran", value: 83992949 }
+                        { name: "React", value: 180 },
+                        { name: "Vue.js", value: 150 },
+                        { name: "TypeScript", value: 160 },
+                        { name: "Angular", value: 120 },
+                        { name: "CSS/SASS", value: 140 },
+                        { name: "Webpack", value: 90 },
+                        { name: "Next.js", value: 110 },
+                        { name: "Tailwind", value: 100 },
+                        { name: "Redux", value: 85 },
+                        { name: "Jest", value: 75 }
                     ]
                 },
                 {
-                    name: "Americas",
+                    name: "Backend",
                     children: [
-                        { name: "United States", value: 331002651 },
-                        { name: "Brazil", value: 212559417 },
-                        { name: "Mexico", value: 128932753 },
-                        { name: "Colombia", value: 50882891 },
-                        { name: "Argentina", value: 45195774 }
+                        { name: "Node.js", value: 170 },
+                        { name: "Python", value: 160 },
+                        { name: "Java", value: 140 },
+                        { name: "Go", value: 110 },
+                        { name: "PostgreSQL", value: 130 },
+                        { name: "MongoDB", value: 120 },
+                        { name: "Redis", value: 100 },
+                        { name: "GraphQL", value: 95 },
+                        { name: "REST API", value: 150 }
                     ]
                 },
                 {
-                    name: "Africa",
+                    name: "DevOps",
                     children: [
-                        { name: "Nigeria", value: 206139589 },
-                        { name: "Ethiopia", value: 114963588 },
-                        { name: "Egypt", value: 102334404 },
-                        { name: "Congo", value: 89561403 },
-                        { name: "South Africa", value: 59308690 }
+                        { name: "Docker", value: 150 },
+                        { name: "Kubernetes", value: 130 },
+                        { name: "AWS", value: 140 },
+                        { name: "CI/CD", value: 120 },
+                        { name: "Terraform", value: 90 },
+                        { name: "Nginx", value: 100 },
+                        { name: "Jenkins", value: 85 },
+                        { name: "Git", value: 180 }
                     ]
                 },
                 {
-                    name: "Europe",
+                    name: "Mobile",
                     children: [
-                        { name: "Russia", value: 145934462 },
-                        { name: "Germany", value: 83783942 },
-                        { name: "UK", value: 67886011 },
-                        { name: "France", value: 65273511 },
-                        { name: "Italy", value: 60461826 },
-                        { name: "Spain", value: 46754778 }
+                        { name: "React Native", value: 130 },
+                        { name: "Flutter", value: 120 },
+                        { name: "Swift", value: 110 },
+                        { name: "Kotlin", value: 100 },
+                        { name: "iOS Dev", value: 95 },
+                        { name: "Android", value: 90 }
                     ]
                 }
             ]
         };
 
         // Global variables
-        let currentData = worldData;
+        let currentData = skillData;
         let history = [];
         const width = 1000;
         const height = 1000;
         const radius = Math.min(width, height) / 2 - 80;
 
-        // Continent color schemes
-        const continentColorSchemes = {
-            'Asia': d3.interpolatePurples,
-            'Americas': d3.interpolateReds,
-            'Africa': d3.interpolateGreens,
-            'Europe': d3.interpolateBlues
+        // Domain color schemes
+        const domainColorSchemes = {
+            'Frontend': d3.interpolateBlues,
+            'Backend': d3.interpolateGreens,
+            'DevOps': d3.interpolateOranges,
+            'Mobile': d3.interpolatePurples
         };
 
         // Calculate polygon centroid
@@ -559,7 +566,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 .sum(d => d.value || 0)
                 .sort((a, b) => (b.value || 0) - (a.value || 0));
 
-            const isWorldView = data.name === "World";
+            const isWorldView = data.name === "Tech Skills";
 
             // Draw outer circle border
             svg.append('circle')
@@ -608,15 +615,15 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 const allCountries = root.leaves();
                 const continents = root.children || [];
 
-                // Draw country cells
-                g.selectAll('.country-cell')
+                // Draw skill cells
+                g.selectAll('.skill-cell')
                     .data(allCountries)
                     .join('path')
-                    .attr('class', 'country-cell')
+                    .attr('class', 'skill-cell')
                     .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
                     .attr('fill', d => {
-                        const continentName = d.parent ? d.parent.data.name : 'Unknown';
-                        const colorScheme = continentColorSchemes[continentName] || d3.interpolateRainbow;
+                        const domainName = d.parent ? d.parent.data.name : 'Unknown';
+                        const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
                         return colorScheme(0.6); // Uniform color per continent
                     })
                     .attr('stroke', '#fff')
@@ -635,13 +642,13 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         
                         const totalValue = root.value || 1;
                         const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
-                        const continentName = d.parent ? d.parent.data.name : '';
+                        const domainName = d.parent ? d.parent.data.name : '';
                         
                         tooltip.innerHTML = `
-                            <strong>${d.data.name} (${continentName})</strong>
-                            <div>Population: ${(d.value || 0).toLocaleString()}</div>
-                            <div>% of World: ${percentage}%</div>
-                            <div style="margin-top: 4px; font-style: italic;">Click to view ${continentName} details →</div>
+                            <strong>${d.data.name} (${domainName})</strong>
+                            <div>Proficiency: ${(d.value || 0)} pts</div>
+                            <div>% of Total: ${percentage}%</div>
+                            <div style="margin-top: 4px; font-style: italic;">Click to view ${domainName} skills →</div>
                         `;
                     })
                     .on('mouseout', function() {
@@ -652,27 +659,27 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     })
                     .on('click', function(event, d) {
                         event.stopPropagation();
-                        if (d.parent && d.parent.data.name !== 'World') {
+                        if (d.parent && d.parent.data.name !== 'Tech Skills') {
                             drillDown(d.parent.data);
                         }
                     });
 
-                // Draw continent borders (thick lines)
-                g.selectAll('.continent-border')
+                // Draw domain borders (thick lines)
+                g.selectAll('.domain-border')
                     .data(continents)
                     .join('path')
-                    .attr('class', 'continent-border')
+                    .attr('class', 'domain-border')
                     .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
                     .attr('fill', 'none')
                     .attr('stroke', '#333')
                     .attr('stroke-width', 3)
                     .style('pointer-events', 'none');
 
-                // Add country labels
-                g.selectAll('.country-label')
+                // Add skill labels
+                g.selectAll('.skill-label')
                     .data(allCountries)
                     .join('text')
-                    .attr('class', 'country-label')
+                    .attr('class', 'skill-label')
                     .attr('x', d => d.polygon ? d3.polygonCentroid(d.polygon)[0] : 0)
                     .attr('y', d => d.polygon ? d3.polygonCentroid(d.polygon)[1] : 0)
                     .attr('text-anchor', 'middle')
@@ -704,7 +711,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .attr('font-size', '14px')
                     .text('⚠️ d3-voronoi-treemap library failed to load');
             } else {
-                // ========== Continent view: only show countries in that continent ==========
+                // ========== Domain view: only show skills in that domain ==========
                 const countries = root.children || [];
                 
                 const pack = d3.pack()
@@ -715,7 +722,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 const sites = countries.map(d => [d.x - radius, d.y - radius]);
                 const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
 
-                const colorScheme = continentColorSchemes[data.name] || d3.interpolateRainbow;
+                const colorScheme = domainColorSchemes[data.name] || d3.interpolateRainbow;
 
                 g.selectAll('path')
                     .data(countries)
@@ -740,7 +747,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         
                         tooltip.innerHTML = `
                             <strong>${d.data.name}</strong>
-                            <div>Population: ${(d.value || 0).toLocaleString()}</div>
+                            <div>Proficiency: ${(d.value || 0)} pts</div>
                             <div>% of ${data.name}: ${percentage}%</div>
                         `;
                     })
@@ -768,7 +775,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .text(d => d.data.name);
             }
 
-            // Add outer ring continent labels in World view
+            // Add outer ring domain labels in overview
             if (isWorldView) {
                 const continents = root.children || [];
                 
@@ -883,7 +890,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         }
 
         function reset() {
-            currentData = worldData;
+            currentData = skillData;
             history = [];
             renderChart(currentData);
         }
@@ -894,32 +901,32 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const mainTitle = document.getElementById('mainTitle');
             const subtitle = document.getElementById('subtitle');
             
-            if (currentData !== worldData || history.length > 0) {
+            if (currentData !== skillData || history.length > 0) {
                 controls.style.display = 'flex';
-                breadcrumb.textContent = currentData !== worldData ? `Current: ${currentData.name}` : '';
+                breadcrumb.textContent = currentData !== skillData ? `Current: ${currentData.name}` : '';
                 
-                if (currentData.name !== "World") {
-                    mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} Population Distribution`;
-                    subtitle.textContent = 'Click empty space to return to world view';
+                if (currentData.name !== "Tech Skills") {
+                    mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} Skills`;
+                    subtitle.textContent = 'Click empty space to return to overview';
                 } else {
-                    mainTitle.textContent = '🌍 Voronoi Treemap - Nested Hierarchy';
-                    subtitle.textContent = 'Countries grouped by continent';
+                    mainTitle.textContent = '💻 Programming Skills Map';
+                    subtitle.textContent = 'Skills grouped by domain';
                 }
             } else {
                 controls.style.display = 'none';
-                mainTitle.textContent = '🌍 Voronoi Treemap - Nested Hierarchy';
-                subtitle.textContent = 'Countries grouped by continent - NATO-style visualization';
+                mainTitle.textContent = '💻 Programming Skills Map';
+                subtitle.textContent = 'Skills grouped by domain - roadmap.sh-style visualization';
             }
         }
         
-        function getFlagEmoji(continentName) {
+        function getFlagEmoji(domainName) {
             const emojiMap = {
-                'Asia': '🌏',
-                'Americas': '🌎',
-                'Africa': '🌍',
-                'Europe': '🇪🇺'
+                'Frontend': '🎨',
+                'Backend': '⚙️',
+                'DevOps': '🚀',
+                'Mobile': '📱'
             };
-            return emojiMap[continentName] || '🌍';
+            return emojiMap[domainName] || '💻';
         }
 
         renderChart(currentData);

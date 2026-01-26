@@ -1,72 +1,73 @@
-# Voronoi Treemap - Nested Hierarchical Visualization
+# Programming Skills Map - Interactive Skill Tree Visualization
 
-A NATO-style population visualization using weighted Voronoi Treemap algorithm to display world population distribution grouped by continents.
+A roadmap.sh-style skill visualization using weighted Voronoi Treemap algorithm to display programming competencies grouped by technical domains.
 
-![Voronoi Treemap](image.png)
+![Programming Skills Map](image.png)
 
 ## 🌟 Features
 
-- **Weighted Area Distribution**: Cell area accurately represents population proportion
-- **Hierarchical Grouping**: Countries grouped by continent with clear regional boundaries
-- **Interactive Drill-Down**: Click any country to zoom into its continent view
-- **NATO-Style Layout**: Clean regional clusters with thick continental borders
+- **Weighted Area Distribution**: Cell area accurately represents skill importance/proficiency
+- **Hierarchical Grouping**: Skills grouped by domain (Frontend, Backend, DevOps, Mobile)
+- **Interactive Drill-Down**: Click any skill to zoom into its domain view
+- **roadmap.sh-Style Layout**: Clean domain clusters with thick borders
 - **Responsive Design**: Circular layout with adaptive labels
 
 ## 🎯 Why This Approach?
 
 ### Problem with Standard Voronoi
 Standard Voronoi diagrams (like `d3.Delaunay`) only distribute space based on seed point distance, completely ignoring weights. This results in:
-- Small population countries appearing disproportionately large
-- No natural grouping of related entities
+- Low-importance skills appearing disproportionately large
+- No natural grouping of related technologies
 - Fragmented, random-looking distributions
 
 ### Solution: Weighted Voronoi Treemap
 Uses the `d3-voronoi-treemap` library which:
 - Iteratively adjusts cell boundaries to match area with weight
-- Respects hierarchical parent-child relationships
-- Creates natural regional clusters (NATO-style effect)
+- Respects hierarchical parent-child relationships (domain → skills)
+- Creates natural domain clusters (roadmap.sh-style effect)
 - Achieves 0.1% accuracy through convergence algorithm
 
 ## 🏗️ Technical Implementation
 
-### Four-Continent Grouping Strategy
+### Four-Domain Grouping Strategy
 
-**Why 4 continents instead of 7?**
-- Creates cleaner, more distinct regional clusters
-- Similar to NATO defense spending visualization approach
+**Why domain grouping?**
+- Creates clear skill clusters by technical area
+- Similar to roadmap.sh's domain organization
 - Better visual separation and clarity
 
-**Selected Regions:**
-- **Asia** - 10 most populous countries (China, India, Indonesia, etc.)
-- **Americas** - North + South America combined (USA, Brazil, Mexico, etc.)
-- **Africa** - 5 major population centers (Nigeria, Ethiopia, Egypt, etc.)
-- **Europe** - Including Russia (Russia, Germany, UK, France, etc.)
+**Selected Domains:**
+- **Frontend** 🎨 - UI/UX technologies (React, Vue, TypeScript, CSS, etc.)
+- **Backend** ⚙️ - Server-side tech (Node.js, Python, databases, APIs, etc.)
+- **DevOps** 🚀 - Infrastructure & deployment (Docker, K8s, AWS, CI/CD, etc.)
+- **Mobile** 📱 - Mobile development (React Native, Flutter, Swift, Kotlin, etc.)
 
-### NATO-Style Effect (3 Steps)
+### roadmap.sh-Style Effect (3 Steps)
 
-1. **Continental Voronoi**: Calculate 4 large continent polygons using weighted treemap
-   - Each continent gets area proportional to its total population
-   - Creates distinct regional boundaries
+1. **Domain Voronoi**: Calculate 4 large domain polygons using weighted treemap
+   - Each domain gets area proportional to its total skill importance
+   - Creates distinct regional boundaries (like roadmap.sh's skill groupings)
 
-2. **Nested Country Distribution**: Within each continent polygon, distribute countries
-   - Countries only appear within their parent continent's boundary
-   - Maintains visual grouping (e.g., all Asian countries cluster together)
+2. **Nested Skill Distribution**: Within each domain polygon, distribute skills
+   - Skills only appear within their parent domain's boundary
+   - Maintains visual grouping (e.g., all Frontend skills cluster together)
+   - Similar to how roadmap.sh groups related technologies
 
-3. **Continent Borders**: Draw thick borders (#333, 3px) around continent polygons
-   - Creates clear visual separation
+3. **Domain Borders**: Draw thick borders (#333, 3px) around domain polygons
+   - Creates clear visual separation between technical domains
    - Labels placed outside circle using polygon centroids
 
 ### Core Algorithm
 
 ```javascript
-// 1. Create hierarchical data structure
-const worldData = {
-    name: "World",
+// 1. Create hierarchical skill data structure
+const skillData = {
+    name: "Tech Skills",
     children: [
-        { name: "Asia", children: [/* 10 countries */] },
-        { name: "Americas", children: [/* 5 countries */] },
-        { name: "Africa", children: [/* 5 countries */] },
-        { name: "Europe", children: [/* 6 countries */] }
+        { name: "Frontend", children: [/* React, Vue, etc. */] },
+        { name: "Backend", children: [/* Node.js, Python, etc. */] },
+        { name: "DevOps", children: [/* Docker, K8s, etc. */] },
+        { name: "Mobile", children: [/* React Native, Flutter, etc. */] }
     ]
 };
 
@@ -79,8 +80,42 @@ const voronoiTreemap = d3.voronoiTreemap()
 
 voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
-// Result: Each country.polygon is automatically CLIPPED to its parent continent!
+// Result: Each skill.polygon is automatically CLIPPED to its parent domain!
 ```
+
+## 📊 Data Structure
+
+```javascript
+{
+    name: "Tech Skills",
+    children: [
+        {
+            name: "Frontend",
+            children: [
+                { name: "React", value: 180 },       // value = importance/proficiency
+                { name: "Vue.js", value: 150 },
+                { name: "TypeScript", value: 160 },
+                // ... more skills
+            ]
+        },
+        {
+            name: "Backend",
+            children: [
+                { name: "Node.js", value: 170 },
+                { name: "Python", value: 160 },
+                { name: "PostgreSQL", value: 130 },
+                // ... more skills
+            ]
+        },
+        // ... DevOps and Mobile domains
+    ]
+}
+```
+
+**Value Guidelines:**
+- Represents skill importance, demand, or your proficiency level
+- Range: 50-200 points
+- Can be based on: GitHub stars, job postings, usage frequency, or personal assessment
 
 ## 📦 Dependencies
 
@@ -98,88 +133,96 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 1. Clone or download this repository
 2. Open `index.html` in a modern browser
 3. Wait 2-3 seconds for initial calculation
-4. Click any country to drill down into continent view
-5. Click empty space to return to world view
+4. Hover over skills to see proficiency details
+5. Click any skill to drill down into domain view
+6. Click empty space to return to overview
+
+## 🎨 Visualization Details
+
+- **Color Scheme**: Each domain has a distinct color family
+  - Frontend: Blue 🎨 (UI/visual-focused)
+  - Backend: Green ⚙️ (server-side)
+  - DevOps: Orange 🚀 (infrastructure)
+  - Mobile: Purple 📱 (mobile platforms)
+- **Borders**: White strokes (1.5px) between skills, thick black (3px) between domains
+- **Labels**: Dynamic font size based on cell area (8-18px)
+- **Opacity**: 0.9 default, 1.0 on hover
 
 ## 🐛 Bug Fixes Applied
 
 ### Bug #1: Area Proportionality Failure
-- **Symptom**: China (1.4B population) appeared smaller than Iran (84M)
+- **Symptom**: High-value items appearing smaller than low-value items
 - **Cause**: Used `d3.Delaunay` which ignores weights
-- **Evidence**: Log showed `{"countryName":"China","expectedRatio":"35.7%","actualArea":"8.6%"}`
+- **Evidence**: Expected vs actual area mismatch (35.7% → 8.6%)
 - **Fix**: Replaced with `d3.voronoiTreemap()`
-- **Result**: China now correctly occupies ~24.5% of total area
+- **Result**: Areas now correctly match weight proportions
 
-### Bug #2: Continent Labels at Origin
-- **Symptom**: All 4 continent labels stuck in top-left corner
-- **Cause**: `voronoiTreemap()` doesn't preserve `continent.x/y` from pack layout
+### Bug #2: Domain Labels at Origin
+- **Symptom**: All 4 domain labels stuck in top-left corner
+- **Cause**: `voronoiTreemap()` doesn't preserve `x/y` coordinates from pack layout
 - **Evidence**: Log showed `{"x":undefined,"y":undefined,"angle":null,"labelX":null}`
-- **Fix**: Changed to `Math.atan2(centroid[1], centroid[0])` where `centroid = d3.polygonCentroid(continent.polygon)`
+- **Fix**: Changed to use `d3.polygonCentroid(domain.polygon)` for angle calculation
 - **Result**: Labels correctly distributed around circle perimeter
 
 ## ⚡ Performance
 
-- **Initial Render**: ~2-3 seconds for 26 countries across 4 continents
+- **Initial Render**: ~2-3 seconds for 33 skills across 4 domains
 - **Convergence**: Up to 100 iterations to achieve 0.1% accuracy
 - **Polygon Clipping**: 64-point circle for smooth boundaries
 
-## 📊 Data Structure
-
-```javascript
-{
-    name: "World",
-    children: [
-        {
-            name: "Asia",
-            children: [
-                { name: "China", value: 1411778724 },
-                { name: "India", value: 1380004385 },
-                // ... 8 more countries
-            ]
-        },
-        // ... 3 more continents
-    ]
-}
-```
-
-## 🎨 Visualization Details
-
-- **Color Scheme**: Each continent has a distinct color family
-  - Asia: Purple
-  - Americas: Red
-  - Africa: Green
-  - Europe: Blue
-- **Borders**: White strokes (1.5px) between countries, thick black (3px) between continents
-- **Labels**: Dynamic font size based on cell area (8-18px)
-- **Opacity**: 0.9 default, 1.0 on hover
-
 ## 🔧 Customization
 
-### Change Convergence Accuracy
+### Update Your Skills
+Edit the `skillData` object (around line 413):
+```javascript
+const skillData = {
+    name: "Tech Skills",
+    children: [
+        {
+            name: "Frontend",
+            children: [
+                { name: "YourSkill", value: 150 },  // Add your skills here
+                // ...
+            ]
+        }
+    ]
+};
+```
+
+### Adjust Proficiency Values
+- **50-80**: Beginner level
+- **80-120**: Intermediate level
+- **120-160**: Advanced level
+- **160-200**: Expert level
+
+### Change Color Schemes
+```javascript
+const continentColorSchemes = {
+    'Frontend': d3.interpolateBlues,
+    'Backend': d3.interpolateGreens,
+    'DevOps': d3.interpolateOranges,
+    'Mobile': d3.interpolatePurples
+};
+```
+
+### Modify Convergence Accuracy
 ```javascript
 .convergenceRatio(0.001)  // 0.1% accuracy (lower = more accurate, slower)
 ```
 
-### Adjust Circle Resolution
-```javascript
-const circlePoints = 64;  // Higher = smoother circle (slower)
-```
+## 💡 Use Cases
 
-### Modify Color Schemes
-```javascript
-const continentColorSchemes = {
-    'Asia': d3.interpolatePurples,
-    'Americas': d3.interpolateReds,
-    'Africa': d3.interpolateGreens,
-    'Europe': d3.interpolateBlues
-};
-```
+- **Personal Portfolio**: Visualize your skill distribution
+- **Team Competency Mapping**: Show team's collective skills
+- **Learning Roadmap**: Plan your learning path
+- **Technology Stack**: Display project tech stack
+- **Skill Gap Analysis**: Identify areas for growth
 
 ## 📖 References
 
+- [roadmap.sh](https://roadmap.sh) - Inspiration for skill grouping
 - [d3-voronoi-treemap Documentation](https://github.com/Kcnarf/d3-voronoi-treemap)
 - [Weighted Voronoi Stippling](http://www.cs.ubc.ca/labs/imager/tr/2002/secord2002b/)
-- [NATO Defense Spending Visualization](https://www.economist.com/graphic-detail/2022/02/24/which-european-countries-rely-on-russian-energy) (Inspiration)
 
 ## 📄 License
 
@@ -191,4 +234,4 @@ Suggestions and improvements are welcome! Please open an issue or submit a pull 
 
 ---
 
-**Note**: This visualization uses population data as a demonstration. The same technique can be applied to any weighted hierarchical data (GDP, market share, budget allocation, etc.).
+**Note**: The skill values in this demo are examples. Customize them to reflect your own proficiency levels or use objective metrics like GitHub stars, npm downloads, or job market demand.
