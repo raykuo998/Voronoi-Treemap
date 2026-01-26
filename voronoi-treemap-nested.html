@@ -213,6 +213,9 @@
     <div class="tooltip" id="tooltip"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-weighted-voronoi@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-map@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-treemap@1"></script>
     <script>
         if (typeof d3 === 'undefined') {
             document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>⚠️ D3.js 加載失敗</h2><p>請檢查網絡連接</p></div>';
@@ -395,104 +398,44 @@
                 .attr('transform', `translate(${centerX},${centerY})`)
                 .attr('clip-path', 'url(#circle-clip)');
 
-            if (isWorldView) {
-                // ========== 嵌套 Voronoi：World 視圖 ==========
+            if (isWorldView && typeof d3.voronoiTreemap !== 'undefined') {
+                // ========== 使用 d3-voronoi-treemap 實現加權嵌套 Voronoi ==========
                 
-                // 第一步：為大洲創建 Voronoi
+                // 創建圓形裁切多邊形
+                const circlePoints = 64;
+                const circlePolygon = [];
+                for (let i = 0; i < circlePoints; i++) {
+                    const angle = (i / circlePoints) * 2 * Math.PI;
+                    circlePolygon.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
+                }
+
+                // 使用 d3-voronoi-treemap 進行加權分層
+                const voronoiTreemap = d3.voronoiTreemap()
+                    .clip(circlePolygon)
+                    .convergenceRatio(0.001)
+                    .maxIterationCount(100)
+                    .minWeightRatio(0.001);
+
+                // 計算 voronoi treemap
+                voronoiTreemap(root);
+
+                // 收集所有國家（葉節點）
+                const allCountries = root.leaves();
                 const continents = root.children || [];
-                
-                // 使用 pack 為大洲計算位置
-                const packLayout = d3.pack()
-                    .size([radius * 2, radius * 2])
-                    .padding(5);
-                
-                packLayout(root);
-                
-                // 大洲的種子點
-                const continentSites = continents.map(d => [d.x - radius, d.y - radius]);
-                const continentVoronoi = d3.Delaunay.from(continentSites)
-                    .voronoi([-radius, -radius, radius, radius]);
 
-                // 儲存所有國家的繪製數據
-                const allCountryData = [];
-
-                // 第二步：在每個大洲區域內為國家創建子 Voronoi
-                continents.forEach((continent, continentIdx) => {
-                    const continentPolygon = continentVoronoi.cellPolygon(continentIdx);
-                    if (!continentPolygon) return;
-
-                    const countries = continent.children || [];
-                    if (countries.length === 0) return;
-
-                    // 獲取顏色方案
-                    const colorScheme = continentColorSchemes[continent.data.name] || d3.interpolateRainbow;
-
-                    // 計算大洲多邊形的邊界框
-                    const minX = Math.min(...continentPolygon.map(p => p[0]));
-                    const maxX = Math.max(...continentPolygon.map(p => p[0]));
-                    const minY = Math.min(...continentPolygon.map(p => p[1]));
-                    const maxY = Math.max(...continentPolygon.map(p => p[1]));
-                    const polyWidth = maxX - minX;
-                    const polyHeight = maxY - minY;
-
-                    // 為國家創建 pack layout 並映射到大洲區域
-                    const continentHierarchy = d3.hierarchy(continent.data)
-                        .sum(d => d.value || 0)
-                        .sort((a, b) => (b.value || 0) - (a.value || 0));
-
-                    const countryPack = d3.pack()
-                        .size([polyWidth * 0.9, polyHeight * 0.9])
-                        .padding(2);
-
-                    countryPack(continentHierarchy);
-
-                    // 國家的種子點（相對於大洲區域）
-                    const countryNodes = continentHierarchy.leaves();
-                    const polyCentroid = polygonCentroid(continentPolygon);
-                    
-                    const countrySites = countryNodes.map(d => {
-                        // 將 pack 座標映射到大洲區域中心
-                        const offsetX = d.x - polyWidth * 0.45;
-                        const offsetY = d.y - polyHeight * 0.45;
-                        return [
-                            polyCentroid[0] + offsetX,
-                            polyCentroid[1] + offsetY
-                        ];
-                    });
-
-                    // 創建國家的 Voronoi（範圍限制在大洲多邊形內）
-                    const countryVoronoi = d3.Delaunay.from(countrySites)
-                        .voronoi([minX, minY, maxX, maxY]);
-
-                    // 收集國家數據
-                    countryNodes.forEach((country, countryIdx) => {
-                        let countryPolygon = countryVoronoi.cellPolygon(countryIdx);
-                        if (!countryPolygon) return;
-
-                        // 裁切國家多邊形到大洲多邊形內
-                        countryPolygon = clipToPolygon(countryPolygon, continentPolygon);
-                        
-                        if (!countryPolygon || countryPolygon.length < 3) return;
-
-                        allCountryData.push({
-                            polygon: countryPolygon,
-                            country: country,
-                            continent: continent,
-                            continentIdx: continentIdx,
-                            countryIdx: countryIdx,
-                            color: colorScheme(0.4 + (countryIdx / countryNodes.length) * 0.5),
-                            site: countrySites[countryIdx]
-                        });
-                    });
-                });
-
-                // 繪製所有國家
+                // 繪製國家 cells
                 g.selectAll('.country-cell')
-                    .data(allCountryData)
+                    .data(allCountries)
                     .join('path')
                     .attr('class', 'country-cell')
-                    .attr('d', d => "M" + d.polygon.join("L") + "Z")
-                    .attr('fill', d => d.color)
+                    .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
+                    .attr('fill', d => {
+                        const continentName = d.parent ? d.parent.data.name : 'Unknown';
+                        const colorScheme = continentColorSchemes[continentName] || d3.interpolateRainbow;
+                        const siblings = d.parent ? d.parent.children : [d];
+                        const idx = siblings.indexOf(d);
+                        return colorScheme(0.4 + (idx / siblings.length) * 0.5);
+                    })
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 1.5)
                     .attr('opacity', 0.9)
@@ -508,13 +451,14 @@
                         tooltip.style.top = event.pageY + 10 + 'px';
                         
                         const totalValue = root.value || 1;
-                        const percentage = ((d.country.value || 0) / totalValue * 100).toFixed(1);
+                        const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
+                        const continentName = d.parent ? d.parent.data.name : '';
                         
                         tooltip.innerHTML = `
-                            <strong>${d.country.data.name} (${d.continent.data.name})</strong>
-                            <div>人口: ${(d.country.value || 0).toLocaleString()}</div>
+                            <strong>${d.data.name} (${continentName})</strong>
+                            <div>人口: ${(d.value || 0).toLocaleString()}</div>
                             <div>佔世界: ${percentage}%</div>
-                            <div style="margin-top: 4px; font-style: italic;">點擊查看 ${d.continent.data.name} 詳情 →</div>
+                            <div style="margin-top: 4px; font-style: italic;">點擊查看 ${continentName} 詳情 →</div>
                         `;
                     })
                     .on('mouseout', function() {
@@ -525,7 +469,9 @@
                     })
                     .on('click', function(event, d) {
                         event.stopPropagation();
-                        drillDown(d.continent.data);
+                        if (d.parent && d.parent.data.name !== 'World') {
+                            drillDown(d.parent.data);
+                        }
                     });
 
                 // 繪製大洲邊界（粗線）
@@ -533,10 +479,7 @@
                     .data(continents)
                     .join('path')
                     .attr('class', 'continent-border')
-                    .attr('d', (d, i) => {
-                        const polygon = continentVoronoi.cellPolygon(i);
-                        return polygon ? "M" + polygon.join("L") + "Z" : null;
-                    })
+                    .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
                     .attr('fill', 'none')
                     .attr('stroke', '#333')
                     .attr('stroke-width', 3)
@@ -544,24 +487,26 @@
 
                 // 添加國家標籤
                 g.selectAll('.country-label')
-                    .data(allCountryData)
+                    .data(allCountries)
                     .join('text')
                     .attr('class', 'country-label')
-                    .attr('x', d => polygonCentroid(d.polygon)[0])
-                    .attr('y', d => polygonCentroid(d.polygon)[1])
+                    .attr('x', d => d.polygon ? d3.polygonCentroid(d.polygon)[0] : 0)
+                    .attr('y', d => d.polygon ? d3.polygonCentroid(d.polygon)[1] : 0)
                     .attr('text-anchor', 'middle')
                     .attr('dominant-baseline', 'middle')
                     .attr('fill', '#fff')
                     .attr('font-size', d => {
+                        if (!d.polygon) return '10px';
                         const area = Math.abs(d3.polygonArea(d.polygon));
-                        return Math.max(8, Math.min(18, Math.sqrt(area) / 12)) + 'px';
+                        return Math.max(8, Math.min(18, Math.sqrt(area) / 10)) + 'px';
                     })
                     .attr('font-weight', 'bold')
                     .style('pointer-events', 'none')
                     .style('text-shadow', '1px 1px 3px rgba(0,0,0,0.8)')
                     .text(d => {
+                        if (!d.polygon) return '';
                         const area = Math.abs(d3.polygonArea(d.polygon));
-                        const name = d.country.data.name;
+                        const name = d.data.name;
                         
                         if (area > 8000) return name;
                         if (area > 4000) return name.length > 10 ? name.substring(0, 10) : name;
@@ -569,6 +514,13 @@
                         return '';
                     });
 
+            } else if (isWorldView) {
+                // 庫未載入，顯示錯誤訊息
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#666')
+                    .attr('font-size', '14px')
+                    .text('⚠️ d3-voronoi-treemap 庫載入失敗');
             } else {
                 // ========== 大洲視圖：只顯示該大洲的國家 ==========
                 const countries = root.children || [];
