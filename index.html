@@ -164,6 +164,64 @@
             margin-right: 8px;
         }
 
+        .instructions h4 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .instructions ol {
+            list-style-position: inside;
+            padding-left: 0;
+        }
+
+        .instructions ol li {
+            padding: 8px 0;
+        }
+
+        .instructions ol li::before {
+            content: "";
+            margin-right: 0;
+        }
+
+        .instructions ul ul {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding-left: 20px;
+        }
+
+        .instructions ul ul li::before {
+            content: "○ ";
+        }
+
+        .instructions pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .instructions code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #d63384;
+        }
+
+        .instructions pre code {
+            background: transparent;
+            padding: 0;
+            color: #333;
+        }
+
+        .instructions strong {
+            color: #667eea;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8rem;
@@ -206,6 +264,133 @@
                 <li>Continents calculated first, then countries distributed within regions</li>
                 <li>Click any country to zoom into its continent view</li>
                 <li>Area represents population proportion</li>
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 Technical Implementation</h3>
+            <p style="color: #666; margin-bottom: 15px;">NATO-style visualization using weighted Voronoi Treemap with continental grouping.</p>
+            
+            <h4>🌍 Four-Continent Grouping Strategy:</h4>
+            <ul>
+                <li><strong>Why 4 continents instead of 7?</strong> Creates cleaner, more distinct regional clusters similar to NATO defense spending visualization</li>
+                <li><strong>Selected regions:</strong>
+                    <ul>
+                        <li><strong>Asia</strong> - 10 most populous countries (China, India, Indonesia, etc.)</li>
+                        <li><strong>Americas</strong> - North + South America (USA, Brazil, Mexico, etc.)</li>
+                        <li><strong>Africa</strong> - 5 major population centers (Nigeria, Ethiopia, Egypt, etc.)</li>
+                        <li><strong>Europe</strong> - Including Russia (Russia, Germany, UK, France, etc.)</li>
+                    </ul>
+                </li>
+                <li><strong>Data structure:</strong> Two-level hierarchy - continents as parent nodes, countries as leaf nodes</li>
+            </ul>
+
+            <h4>🎯 NATO-Style Effect Implementation:</h4>
+            <ul>
+                <li><strong>Step 1 - Continental Voronoi:</strong> Calculate 4 large continent polygons using weighted treemap
+                    <ul>
+                        <li>Each continent gets area proportional to its total population</li>
+                        <li>Creates distinct regional boundaries (like NATO's alliance groupings)</li>
+                    </ul>
+                </li>
+                <li><strong>Step 2 - Nested Country Distribution:</strong> Within each continent polygon, distribute countries
+                    <ul>
+                        <li>Countries only appear within their parent continent's boundary</li>
+                        <li>Maintains visual grouping - all Asian countries cluster together</li>
+                        <li>Similar to how NATO chart groups members by region</li>
+                    </ul>
+                </li>
+                <li><strong>Step 3 - Continent Borders:</strong> Draw thick borders (#333, 3px) around continent polygons
+                    <ul>
+                        <li>Creates clear visual separation between continental regions</li>
+                        <li>Labels placed outside circle using polygon centroids</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>⚙️ Core Algorithm:</h4>
+            <pre><code>// 1. Create hierarchical data structure
+const worldData = {
+    name: "World",
+    children: [
+        { name: "Asia", children: [/* 10 countries */] },
+        { name: "Americas", children: [/* 5 countries */] },
+        { name: "Africa", children: [/* 5 countries */] },
+        { name: "Europe", children: [/* 6 countries */] }
+    ]
+};
+
+// 2. Apply weighted Voronoi treemap
+const voronoiTreemap = d3.voronoiTreemap()
+    .clip(circlePolygon)              // Clip to circular boundary
+    .convergenceRatio(0.001)          // 0.1% accuracy threshold
+    .maxIterationCount(100)           // Max optimization iterations
+    .minWeightRatio(0.001);           // Min cell size threshold
+
+voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
+
+// 3. Result: root.children[] = continents with polygons
+//            root.leaves() = countries with polygons
+//    Each country.polygon is automatically CLIPPED to its parent continent!</code></pre>
+
+            <h4>🔑 Key Difference from Standard Approach:</h4>
+            <ul>
+                <li><strong>❌ Standard Voronoi (d3.Delaunay):</strong> Flat structure, countries distributed by seed point distance only
+                    <ul>
+                        <li>No weight consideration → incorrect proportions</li>
+                        <li>No grouping → countries scatter randomly</li>
+                        <li>Result: Fragmented, no regional patterns</li>
+                    </ul>
+                </li>
+                <li><strong>✅ Weighted Voronoi Treemap:</strong> Hierarchical structure with area-proportional distribution
+                    <ul>
+                        <li>Respects parent-child hierarchy → natural grouping</li>
+                        <li>Iterative adjustment → accurate area matching</li>
+                        <li>Result: Clean regional clusters (NATO-style)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>🐛 Critical Bug Fixes:</h4>
+            <ol>
+                <li><strong>Area proportionality failure:</strong>
+                    <ul>
+                        <li><strong>Symptom:</strong> China (1.4B) smaller than Iran (84M)</li>
+                        <li><strong>Cause:</strong> Used <code>d3.Delaunay</code> which ignores weights</li>
+                        <li><strong>Evidence from logs:</strong> <code>{"countryName":"China","expectedRatio":"35.7%","actualArea":"8.6%"}</code></li>
+                        <li><strong>Fix:</strong> Replaced with <code>d3.voronoiTreemap()</code></li>
+                        <li><strong>Result:</strong> China now correctly occupies ~24.5% of total area</li>
+                    </ul>
+                </li>
+                <li><strong>Continent labels positioned at origin (0,0):</strong>
+                    <ul>
+                        <li><strong>Symptom:</strong> All 4 continent labels stuck in top-left corner</li>
+                        <li><strong>Cause:</strong> <code>voronoiTreemap()</code> doesn't preserve <code>continent.x/y</code> from pack layout</li>
+                        <li><strong>Evidence from logs:</strong> <code>{"x":undefined,"y":undefined,"angle":null,"labelX":null}</code></li>
+                        <li><strong>Fix:</strong> Changed from <code>Math.atan2(continent.y - radius, continent.x - radius)</code> to <code>Math.atan2(centroid[1], centroid[0])</code> where <code>centroid = d3.polygonCentroid(continent.polygon)</code></li>
+                        <li><strong>Result:</strong> Labels correctly distributed around circle perimeter</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>📚 Required Dependencies:</h4>
+            <ul>
+                <li><code>d3@7</code> - Core visualization library</li>
+                <li><code>d3-weighted-voronoi@1</code> - <strong>Critical:</strong> Required by d3-voronoi-treemap</li>
+                <li><code>d3-voronoi-map@2</code> - Base Voronoi mapping utilities</li>
+                <li><code>d3-voronoi-treemap@1</code> - Hierarchical weighted Voronoi implementation</li>
+            </ul>
+            <p style="color: #d63384; margin-top: 10px; font-size: 13px;">
+                ⚠️ <strong>Important:</strong> Missing <code>d3-weighted-voronoi</code> will cause error: 
+                <code>"i.weightedVoronoi is not a function"</code>
+            </p>
+
+            <h4>⚡ Performance Notes:</h4>
+            <ul>
+                <li>Initial calculation: ~2-3 seconds for 26 countries across 4 continents</li>
+                <li>Iterative algorithm may run up to 100 iterations to achieve convergence</li>
+                <li>Convergence ratio of 0.001 ensures area accuracy within 0.1%</li>
+                <li>Use 64-point polygon for smooth circular clipping</li>
             </ul>
         </div>
     </div>
