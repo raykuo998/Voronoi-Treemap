@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voronoi Treemap 方案對比</title>
+    <title>Voronoi Treemap - Nested Hierarchical View</title>
     <style>
         * {
             margin: 0;
@@ -15,384 +15,733 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1200px;
+            width: 100%;
         }
 
         h1 {
             color: white;
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 3rem;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .intro {
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
-        }
-
-        .intro h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.8rem;
-        }
-
-        .intro p {
-            color: #666;
-            line-height: 1.8;
-            margin-bottom: 10px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-        }
-
-        .card-badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #667eea;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .card.original .card-badge {
-            background: #6c757d;
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        .card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .card ul {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 25px;
-        }
-
-        .card li {
-            padding: 8px 0;
-            color: #666;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-        }
-
-        .card li::before {
-            content: "✓";
-            color: #667eea;
-            font-weight: bold;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .card-button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: #667eea;
-            color: white;
+        .subtitle {
+            color: rgba(255,255,255,0.9);
             text-align: center;
-            text-decoration: none;
-            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .method-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
-        .card-button:hover {
+        button:hover {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
         }
 
-        .card.original .card-button {
-            background: #6c757d;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+        button:active {
+            transform: translateY(0);
         }
 
-        .card.original .card-button:hover {
+        .back-btn {
+            background: #6c757d;
+        }
+
+        .back-btn:hover {
             background: #5a6268;
         }
 
-        .comparison {
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 16px;
+        .breadcrumb {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .comparison h2 {
+        .tooltip {
+            position: fixed;
+            display: none;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
             color: #333;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
         }
 
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
         }
 
-        .comparison-table th,
-        .comparison-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .comparison-table th {
-            background: #f5f5f5;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .comparison-table td {
+        .instructions li {
+            padding: 8px 0;
             color: #666;
+            font-size: 14px;
         }
 
-        .rating {
-            color: #ffc107;
+        .instructions li::before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
         }
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            .comparison-table {
-                font-size: 13px;
-            }
-
-            .comparison-table th,
-            .comparison-table td {
-                padding: 10px;
+            button {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Voronoi Treemap 加權方案對比</h1>
-
-        <div class="intro">
-            <h2>研究目標</h2>
-            <p>本研究比較不同的<strong>加權 Voronoi</strong> 實現方案，探討如何讓 Voronoi cell 的面積更接近實際權重分配，使視覺化更乾淨、更專業。</p>
-            <p>靈感來源：NATO 國防支出圖表 - 它展示了極其乾淨的多邊形分割效果。</p>
-            <p><strong>關鍵發現</strong>：NATO 圖表之所以乾淨，最重要的是使用了<strong>分層計算</strong>（先分大區域，再分細節），而不只是加權算法！</p>
-            <p style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 10px;">
-                🏆 <strong>推薦方案</strong>：嵌套分層版 - 顯示所有國家，但同大洲聚集成連貫區域，最接近 NATO 圖表效果！
-            </p>
+        <h1 id="mainTitle">🌍 Voronoi Treemap - Nested Hierarchy</h1>
+        <p class="subtitle" id="subtitle">Countries grouped by continent - NATO-style visualization</p>
+        <div style="text-align: center;">
+            <span class="method-badge">🏛️ Nested Structure: Countries within Continental Regions</span>
         </div>
 
-        <div class="cards">
-            <div class="card" style="border: 3px solid #f59e0b;">
-                <div class="card-badge" style="background: #f59e0b;">最像 NATO！</div>
-                <div class="card-icon">🎯</div>
-                <h3>嵌套分層版（顯示所有國家）</h3>
-                <p>同時顯示所有國家，但同一大洲的國家聚集成連貫區域。最接近 NATO 圖表效果！</p>
-                <ul>
-                    <li>根視圖顯示所有 26 個國家</li>
-                    <li>同大洲國家自動聚集</li>
-                    <li>大洲間有粗邊界分隔</li>
-                    <li>真正的嵌套 Voronoi</li>
-                </ul>
-                <a href="voronoi-treemap-nested.html" class="card-button" style="background: #f59e0b;" target="_blank">查看嵌套版本 →</a>
-            </div>
-
-            <div class="card" style="border: 3px solid #667eea;">
-                <div class="card-badge" style="background: #10b981;">乾淨！</div>
-                <div class="card-icon">🏛️</div>
-                <h3>分層計算版（只顯示大洲）</h3>
-                <p>先顯示 4 個大洲區塊，點擊後才進入國家視圖。視覺最乾淨！</p>
-                <ul>
-                    <li>根視圖只有 4 個大塊</li>
-                    <li>每個大洲形成連貫區域</li>
-                    <li>視覺效果最乾淨</li>
-                    <li>點擊進入詳情</li>
-                </ul>
-                <a href="voronoi-treemap-hierarchical.html" class="card-button" style="background: #10b981;" target="_blank">查看分層版本 →</a>
-            </div>
-
-            <div class="card original">
-                <div class="card-badge">原始版本</div>
-                <div class="card-icon">📊</div>
-                <h3>原始版本（對照組）</h3>
-                <p>使用 D3 pack layout 計算位置，直接基於這些位置創建普通 Voronoi 圖。</p>
-                <ul>
-                    <li>最簡單的實現</li>
-                    <li>不考慮權重</li>
-                    <li>可能出現面積不匹配</li>
-                    <li>作為對照基準</li>
-                </ul>
-                <a href="voronoi-treemap-demo.html" class="card-button" target="_blank">查看原始版本 →</a>
-            </div>
-
-            <div class="card">
-                <div class="card-badge">方案 A</div>
-                <div class="card-icon">⚙️</div>
-                <h3>Lloyd's Relaxation</h3>
-                <p>迭代優化算法，每次迭代將種子點移向其 Voronoi cell 的加權質心。</p>
-                <ul>
-                    <li>5 次迭代優化</li>
-                    <li>面積逐步接近目標權重</li>
-                    <li>不需要額外函式庫</li>
-                    <li>效果穩定可控</li>
-                </ul>
-                <a href="voronoi-treemap-lloyd.html" class="card-button" target="_blank">查看 Lloyd's Relaxation →</a>
-            </div>
-
-            <div class="card">
-                <div class="card-badge">方案 B</div>
-                <div class="card-icon">⚡</div>
-                <h3>Force Layout（力導向）</h3>
-                <p>使用 D3 力導向模擬，根據權重設定碰撞半徑，物理推開種子點。</p>
-                <ul>
-                    <li>物理模擬自然分布</li>
-                    <li>碰撞半徑基於權重</li>
-                    <li>計算快速</li>
-                    <li>結果有機且美觀</li>
-                </ul>
-                <a href="voronoi-treemap-force.html" class="card-button" target="_blank">查看 Force Layout →</a>
-            </div>
-
-            <div class="card">
-                <div class="card-badge">方案 C</div>
-                <div class="card-icon">📚</div>
-                <h3>D3 Voronoi Treemap 函式庫</h3>
-                <p>使用專門的 d3-voronoi-treemap 函式庫，生產級的加權 Voronoi 解決方案。</p>
-                <ul>
-                    <li>專業函式庫</li>
-                    <li>精確的權重分配</li>
-                    <li>自動優化邊界</li>
-                    <li>NATO 圖表可能使用</li>
-                </ul>
-                <a href="voronoi-treemap-library.html" class="card-button" target="_blank">查看 Library 版本 →</a>
-            </div>
+        <div class="controls" id="controls">
+            <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+            <button id="resetBtn" onclick="reset()">⌂ Reset to World View</button>
+            <span class="breadcrumb" id="breadcrumb"></span>
         </div>
 
-        <div class="comparison">
-            <h2>📊 方案對比表</h2>
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>方案</th>
-                        <th>實現難度</th>
-                        <th>視覺效果</th>
-                        <th>計算效能</th>
-                        <th>需要額外庫</th>
-                        <th>推薦指數</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="background: #fef3c7;">
-                        <td><strong>🎯 嵌套分層（最像 NATO）</strong></td>
-                        <td class="rating">⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                        <td>❌</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                    </tr>
-                    <tr style="background: #f0fdf4;">
-                        <td><strong>🏛️ 分層計算（只顯示大洲）</strong></td>
-                        <td class="rating">⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                        <td>❌</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                    </tr>
-                    <tr>
-                        <td><strong>原始版本</strong></td>
-                        <td class="rating">⭐</td>
-                        <td class="rating">⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                        <td>❌</td>
-                        <td class="rating">⭐⭐</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Lloyd's Relaxation</strong></td>
-                        <td class="rating">⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐</td>
-                        <td>❌</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Force Layout</strong></td>
-                        <td class="rating">⭐⭐</td>
-                        <td class="rating">⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                        <td>❌</td>
-                        <td class="rating">⭐⭐⭐</td>
-                    </tr>
-                    <tr>
-                        <td><strong>D3 Library</strong></td>
-                        <td class="rating">⭐</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                        <td class="rating">⭐⭐⭐⭐</td>
-                        <td>✅</td>
-                        <td class="rating">⭐⭐⭐⭐⭐</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px; border: 2px solid #f59e0b;">
-                <h3 style="color: #333; margin-bottom: 15px;">💡 使用建議</h3>
-                <ul style="color: #666; line-height: 1.8;">
-                    <li><strong>🏆 最像 NATO 圖表（推薦！）</strong>：嵌套分層版 - 顯示所有國家，但按大洲聚集</li>
-                    <li><strong>追求極簡視覺</strong>：分層計算版 - 只顯示大洲，點擊進入詳情</li>
-                    <li><strong>快速原型</strong>：使用原始版本</li>
-                    <li><strong>不想引入外部庫</strong>：Lloyd's Relaxation（最佳平衡）</li>
-                    <li><strong>專業項目/精確需求</strong>：D3 Voronoi Treemap 函式庫</li>
-                </ul>
-            </div>
+        <div class="chart-container">
+            <svg id="chart"></svg>
+        </div>
+
+        <div class="instructions">
+            <h3>Nested Hierarchy Features</h3>
+            <ul>
+                <li>All countries displayed in the root view</li>
+                <li>Countries from the same continent grouped into contiguous regions (NATO-style)</li>
+                <li>Continents calculated first, then countries distributed within regions</li>
+                <li>Click any country to zoom into its continent view</li>
+                <li>Area represents population proportion</li>
+            </ul>
         </div>
     </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-weighted-voronoi@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-map@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-voronoi-treemap@1"></script>
+    <script>
+        if (typeof d3 === 'undefined') {
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>⚠️ D3.js Failed to Load</h2><p>Please check your internet connection</p></div>';
+            throw new Error('D3.js failed to load');
+        }
+    </script>
+
+    <script>
+        // World population data
+        const worldData = {
+            name: "World",
+            children: [
+                {
+                    name: "Asia",
+                    children: [
+                        { name: "China", value: 1411778724 },
+                        { name: "India", value: 1380004385 },
+                        { name: "Indonesia", value: 273523615 },
+                        { name: "Pakistan", value: 220892340 },
+                        { name: "Bangladesh", value: 164689383 },
+                        { name: "Japan", value: 126476461 },
+                        { name: "Philippines", value: 109581078 },
+                        { name: "Vietnam", value: 97338579 },
+                        { name: "Turkey", value: 84339067 },
+                        { name: "Iran", value: 83992949 }
+                    ]
+                },
+                {
+                    name: "Americas",
+                    children: [
+                        { name: "United States", value: 331002651 },
+                        { name: "Brazil", value: 212559417 },
+                        { name: "Mexico", value: 128932753 },
+                        { name: "Colombia", value: 50882891 },
+                        { name: "Argentina", value: 45195774 }
+                    ]
+                },
+                {
+                    name: "Africa",
+                    children: [
+                        { name: "Nigeria", value: 206139589 },
+                        { name: "Ethiopia", value: 114963588 },
+                        { name: "Egypt", value: 102334404 },
+                        { name: "Congo", value: 89561403 },
+                        { name: "South Africa", value: 59308690 }
+                    ]
+                },
+                {
+                    name: "Europe",
+                    children: [
+                        { name: "Russia", value: 145934462 },
+                        { name: "Germany", value: 83783942 },
+                        { name: "UK", value: 67886011 },
+                        { name: "France", value: 65273511 },
+                        { name: "Italy", value: 60461826 },
+                        { name: "Spain", value: 46754778 }
+                    ]
+                }
+            ]
+        };
+
+        // Global variables
+        let currentData = worldData;
+        let history = [];
+        const width = 1000;
+        const height = 1000;
+        const radius = Math.min(width, height) / 2 - 80;
+
+        // Continent color schemes
+        const continentColorSchemes = {
+            'Asia': d3.interpolatePurples,
+            'Americas': d3.interpolateReds,
+            'Africa': d3.interpolateGreens,
+            'Europe': d3.interpolateBlues
+        };
+
+        // Calculate polygon centroid
+        function polygonCentroid(polygon) {
+            if (!polygon || polygon.length === 0) return [0, 0];
+            let x = 0, y = 0, n = polygon.length;
+            for (let i = 0; i < n; i++) {
+                x += polygon[i][0];
+                y += polygon[i][1];
+            }
+            return [x / n, y / n];
+        }
+
+        // Clip polygon to circle
+        function clipPolygonToCircle(polygon, cx, cy, r) {
+            if (!polygon || polygon.length < 3) return polygon;
+            
+            const result = [];
+            const n = polygon.length;
+            
+            for (let i = 0; i < n; i++) {
+                const current = polygon[i];
+                const next = polygon[(i + 1) % n];
+                
+                const currentInside = Math.sqrt(Math.pow(current[0] - cx, 2) + Math.pow(current[1] - cy, 2)) <= r;
+                const nextInside = Math.sqrt(Math.pow(next[0] - cx, 2) + Math.pow(next[1] - cy, 2)) <= r;
+                
+                if (currentInside) {
+                    result.push(current);
+                }
+                
+                if (currentInside !== nextInside) {
+                    // Find intersection
+                    const intersection = lineCircleIntersection(current, next, cx, cy, r);
+                    if (intersection) {
+                        result.push(intersection);
+                    }
+                }
+            }
+            
+            return result.length >= 3 ? result : polygon;
+        }
+
+        // Line-circle intersection
+        function lineCircleIntersection(p1, p2, cx, cy, r) {
+            const dx = p2[0] - p1[0];
+            const dy = p2[1] - p1[1];
+            const fx = p1[0] - cx;
+            const fy = p1[1] - cy;
+            
+            const a = dx * dx + dy * dy;
+            const b = 2 * (fx * dx + fy * dy);
+            const c = fx * fx + fy * fy - r * r;
+            
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return null;
+            
+            const t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
+            const t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+            
+            let t = null;
+            if (t1 >= 0 && t1 <= 1) t = t1;
+            else if (t2 >= 0 && t2 <= 1) t = t2;
+            
+            if (t === null) return null;
+            
+            return [p1[0] + t * dx, p1[1] + t * dy];
+        }
+
+        function renderChart(data) {
+            d3.select('#chart').selectAll('*').remove();
+
+            const svg = d3.select('#chart')
+                .attr('width', width)
+                .attr('height', height);
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Create hierarchical data
+            const root = d3.hierarchy(data)
+                .sum(d => d.value || 0)
+                .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+            const isWorldView = data.name === "World";
+
+            // Draw outer circle border
+            svg.append('circle')
+                .attr('cx', centerX)
+                .attr('cy', centerY)
+                .attr('r', radius)
+                .attr('fill', 'none')
+                .attr('stroke', '#333')
+                .attr('stroke-width', 4);
+
+            // Create circular clip path
+            const defs = svg.append('defs');
+            defs.append('clipPath')
+                .attr('id', 'circle-clip')
+                .append('circle')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', radius);
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${centerX},${centerY})`)
+                .attr('clip-path', 'url(#circle-clip)');
+
+            if (isWorldView && typeof d3.voronoiTreemap !== 'undefined') {
+                // ========== Use d3-voronoi-treemap for weighted nested Voronoi ==========
+                
+                // Create circular clipping polygon
+                const circlePoints = 64;
+                const circlePolygon = [];
+                for (let i = 0; i < circlePoints; i++) {
+                    const angle = (i / circlePoints) * 2 * Math.PI;
+                    circlePolygon.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
+                }
+
+                // Use d3-voronoi-treemap for weighted hierarchy
+                const voronoiTreemap = d3.voronoiTreemap()
+                    .clip(circlePolygon)
+                    .convergenceRatio(0.001)
+                    .maxIterationCount(100)
+                    .minWeightRatio(0.001);
+
+                // Calculate voronoi treemap
+                voronoiTreemap(root);
+
+                // Collect all countries (leaf nodes)
+                const allCountries = root.leaves();
+                const continents = root.children || [];
+
+                // Draw country cells
+                g.selectAll('.country-cell')
+                    .data(allCountries)
+                    .join('path')
+                    .attr('class', 'country-cell')
+                    .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
+                    .attr('fill', d => {
+                        const continentName = d.parent ? d.parent.data.name : 'Unknown';
+                        const colorScheme = continentColorSchemes[continentName] || d3.interpolateRainbow;
+                        const siblings = d.parent ? d.parent.children : [d];
+                        const idx = siblings.indexOf(d);
+                        return colorScheme(0.4 + (idx / siblings.length) * 0.5);
+                    })
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 1.5)
+                    .attr('opacity', 0.9)
+                    .style('cursor', 'pointer')
+                    .on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 1)
+                            .attr('stroke-width', 3);
+                        
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY + 10 + 'px';
+                        
+                        const totalValue = root.value || 1;
+                        const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
+                        const continentName = d.parent ? d.parent.data.name : '';
+                        
+                        tooltip.innerHTML = `
+                            <strong>${d.data.name} (${continentName})</strong>
+                            <div>Population: ${(d.value || 0).toLocaleString()}</div>
+                            <div>% of World: ${percentage}%</div>
+                            <div style="margin-top: 4px; font-style: italic;">Click to view ${continentName} details →</div>
+                        `;
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .attr('opacity', 0.9)
+                            .attr('stroke-width', 1.5);
+                        document.getElementById('tooltip').style.display = 'none';
+                    })
+                    .on('click', function(event, d) {
+                        event.stopPropagation();
+                        if (d.parent && d.parent.data.name !== 'World') {
+                            drillDown(d.parent.data);
+                        }
+                    });
+
+                // Draw continent borders (thick lines)
+                g.selectAll('.continent-border')
+                    .data(continents)
+                    .join('path')
+                    .attr('class', 'continent-border')
+                    .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
+                    .attr('fill', 'none')
+                    .attr('stroke', '#333')
+                    .attr('stroke-width', 3)
+                    .style('pointer-events', 'none');
+
+                // Add country labels
+                g.selectAll('.country-label')
+                    .data(allCountries)
+                    .join('text')
+                    .attr('class', 'country-label')
+                    .attr('x', d => d.polygon ? d3.polygonCentroid(d.polygon)[0] : 0)
+                    .attr('y', d => d.polygon ? d3.polygonCentroid(d.polygon)[1] : 0)
+                    .attr('text-anchor', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', d => {
+                        if (!d.polygon) return '10px';
+                        const area = Math.abs(d3.polygonArea(d.polygon));
+                        return Math.max(8, Math.min(18, Math.sqrt(area) / 10)) + 'px';
+                    })
+                    .attr('font-weight', 'bold')
+                    .style('pointer-events', 'none')
+                    .style('text-shadow', '1px 1px 3px rgba(0,0,0,0.8)')
+                    .text(d => {
+                        if (!d.polygon) return '';
+                        const area = Math.abs(d3.polygonArea(d.polygon));
+                        const name = d.data.name;
+                        
+                        if (area > 8000) return name;
+                        if (area > 4000) return name.length > 10 ? name.substring(0, 10) : name;
+                        if (area > 2000) return name.length > 6 ? name.substring(0, 6) : name;
+                        return '';
+                    });
+
+            } else if (isWorldView) {
+                // Library not loaded, show error message
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#666')
+                    .attr('font-size', '14px')
+                    .text('⚠️ d3-voronoi-treemap library failed to load');
+            } else {
+                // ========== Continent view: only show countries in that continent ==========
+                const countries = root.children || [];
+                
+                const pack = d3.pack()
+                    .size([radius * 2, radius * 2])
+                    .padding(3);
+                pack(root);
+
+                const sites = countries.map(d => [d.x - radius, d.y - radius]);
+                const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
+
+                const colorScheme = continentColorSchemes[data.name] || d3.interpolateRainbow;
+
+                g.selectAll('path')
+                    .data(countries)
+                    .join('path')
+                    .attr('d', (d, i) => voronoi.renderCell(i))
+                    .attr('fill', (d, i) => colorScheme(0.4 + (i / countries.length) * 0.5))
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2)
+                    .attr('opacity', 0.9)
+                    .style('cursor', 'pointer')
+                    .on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 1)
+                            .attr('stroke-width', 3);
+                        
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY + 10 + 'px';
+                        
+                        const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                        
+                        tooltip.innerHTML = `
+                            <strong>${d.data.name}</strong>
+                            <div>Population: ${(d.value || 0).toLocaleString()}</div>
+                            <div>% of ${data.name}: ${percentage}%</div>
+                        `;
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .attr('opacity', 0.9)
+                            .attr('stroke-width', 2);
+                        document.getElementById('tooltip').style.display = 'none';
+                    });
+
+                g.selectAll('text')
+                    .data(countries)
+                    .join('text')
+                    .attr('x', d => d.x - radius)
+                    .attr('y', d => d.y - radius)
+                    .attr('text-anchor', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', d => {
+                        const area = Math.PI * Math.pow(d.r || 0, 2);
+                        return Math.max(10, Math.min(24, Math.sqrt(area) / 6)) + 'px';
+                    })
+                    .attr('font-weight', 'bold')
+                    .style('pointer-events', 'none')
+                    .style('text-shadow', '2px 2px 4px rgba(0,0,0,0.7)')
+                    .text(d => d.data.name);
+            }
+
+            // Add outer ring continent labels in World view
+            if (isWorldView) {
+                const continents = root.children || [];
+                
+                continents.forEach(continent => {
+                    // Use polygon centroid to calculate angle
+                    const centroid = continent.polygon ? d3.polygonCentroid(continent.polygon) : [0, 0];
+                    const angle = Math.atan2(centroid[1], centroid[0]);
+                    const labelRadius = radius + 50;
+                    const labelX = centerX + Math.cos(angle) * labelRadius;
+                    const labelY = centerY + Math.sin(angle) * labelRadius;
+                    
+                    const textElement = svg.append('text')
+                        .attr('x', labelX)
+                        .attr('y', labelY)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#333')
+                        .attr('font-size', '15px')
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(continent.data.name);
+                    
+                    const bbox = textElement.node().getBBox();
+                    
+                    svg.insert('rect', () => textElement.node())
+                        .attr('x', bbox.x - 6)
+                        .attr('y', bbox.y - 3)
+                        .attr('width', bbox.width + 12)
+                        .attr('height', bbox.height + 6)
+                        .attr('fill', 'white')
+                        .attr('opacity', 0.95)
+                        .attr('rx', 6)
+                        .attr('ry', 6)
+                        .attr('stroke', '#999')
+                        .attr('stroke-width', 1.5)
+                        .style('pointer-events', 'none');
+                });
+            }
+
+            svg.on('click', () => {
+                if (history.length > 0) goBack();
+            });
+
+            updateControls();
+        }
+
+        // Clip polygon to another polygon (simplified Sutherland-Hodgman algorithm)
+        function clipToPolygon(subject, clip) {
+            if (!subject || !clip || subject.length < 3 || clip.length < 3) return subject;
+            
+            let output = subject;
+            
+            for (let i = 0; i < clip.length; i++) {
+                if (output.length === 0) return [];
+                
+                const input = output;
+                output = [];
+                
+                const edgeStart = clip[i];
+                const edgeEnd = clip[(i + 1) % clip.length];
+                
+                for (let j = 0; j < input.length; j++) {
+                    const current = input[j];
+                    const next = input[(j + 1) % input.length];
+                    
+                    const currentInside = isLeft(edgeStart, edgeEnd, current);
+                    const nextInside = isLeft(edgeStart, edgeEnd, next);
+                    
+                    if (currentInside) {
+                        output.push(current);
+                        if (!nextInside) {
+                            const intersection = lineIntersection(edgeStart, edgeEnd, current, next);
+                            if (intersection) output.push(intersection);
+                        }
+                    } else if (nextInside) {
+                        const intersection = lineIntersection(edgeStart, edgeEnd, current, next);
+                        if (intersection) output.push(intersection);
+                    }
+                }
+            }
+            
+            return output.length >= 3 ? output : subject;
+        }
+
+        function isLeft(a, b, c) {
+            return ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) >= 0;
+        }
+
+        function lineIntersection(p1, p2, p3, p4) {
+            const d = (p1[0] - p2[0]) * (p3[1] - p4[1]) - (p1[1] - p2[1]) * (p3[0] - p4[0]);
+            if (Math.abs(d) < 1e-10) return null;
+            
+            const t = ((p1[0] - p3[0]) * (p3[1] - p4[1]) - (p1[1] - p3[1]) * (p3[0] - p4[0])) / d;
+            
+            return [
+                p1[0] + t * (p2[0] - p1[0]),
+                p1[1] + t * (p2[1] - p1[1])
+            ];
+        }
+
+        function drillDown(data) {
+            history.push(currentData);
+            currentData = data;
+            renderChart(currentData);
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                currentData = history.pop();
+                renderChart(currentData);
+            }
+        }
+
+        function reset() {
+            currentData = worldData;
+            history = [];
+            renderChart(currentData);
+        }
+
+        function updateControls() {
+            const controls = document.getElementById('controls');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const mainTitle = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('subtitle');
+            
+            if (currentData !== worldData || history.length > 0) {
+                controls.style.display = 'flex';
+                breadcrumb.textContent = currentData !== worldData ? `Current: ${currentData.name}` : '';
+                
+                if (currentData.name !== "World") {
+                    mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} Population Distribution`;
+                    subtitle.textContent = 'Click empty space to return to world view';
+                } else {
+                    mainTitle.textContent = '🌍 Voronoi Treemap - Nested Hierarchy';
+                    subtitle.textContent = 'Countries grouped by continent';
+                }
+            } else {
+                controls.style.display = 'none';
+                mainTitle.textContent = '🌍 Voronoi Treemap - Nested Hierarchy';
+                subtitle.textContent = 'Countries grouped by continent - NATO-style visualization';
+            }
+        }
+        
+        function getFlagEmoji(continentName) {
+            const emojiMap = {
+                'Asia': '🌏',
+                'Americas': '🌎',
+                'Africa': '🌍',
+                'Europe': '🇪🇺'
+            };
+            return emojiMap[continentName] || '🌍';
+        }
+
+        renderChart(currentData);
+    </script>
 </body>
 </html>
