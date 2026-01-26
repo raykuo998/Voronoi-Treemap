@@ -617,9 +617,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .attr('fill', d => {
                         const continentName = d.parent ? d.parent.data.name : 'Unknown';
                         const colorScheme = continentColorSchemes[continentName] || d3.interpolateRainbow;
-                        const siblings = d.parent ? d.parent.children : [d];
-                        const idx = siblings.indexOf(d);
-                        return colorScheme(0.4 + (idx / siblings.length) * 0.5);
+                        return colorScheme(0.6); // Uniform color per continent
                     })
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 1.5)
@@ -687,7 +685,6 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     })
                     .attr('font-weight', 'bold')
                     .style('pointer-events', 'none')
-                    .style('text-shadow', '1px 1px 3px rgba(0,0,0,0.8)')
                     .text(d => {
                         if (!d.polygon) return '';
                         const area = Math.abs(d3.polygonArea(d.polygon));
@@ -724,7 +721,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .data(countries)
                     .join('path')
                     .attr('d', (d, i) => voronoi.renderCell(i))
-                    .attr('fill', (d, i) => colorScheme(0.4 + (i / countries.length) * 0.5))
+                    .attr('fill', () => colorScheme(0.6)) // Uniform color per continent
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 2)
                     .attr('opacity', 0.9)
@@ -768,7 +765,6 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     })
                     .attr('font-weight', 'bold')
                     .style('pointer-events', 'none')
-                    .style('text-shadow', '2px 2px 4px rgba(0,0,0,0.7)')
                     .text(d => d.data.name);
             }
 
