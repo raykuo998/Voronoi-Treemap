@@ -592,7 +592,9 @@
                 const continents = root.children || [];
                 
                 continents.forEach(continent => {
-                    const angle = Math.atan2(continent.y - radius, continent.x - radius);
+                    // 使用 polygon 的重心來計算角度
+                    const centroid = continent.polygon ? d3.polygonCentroid(continent.polygon) : [0, 0];
+                    const angle = Math.atan2(centroid[1], centroid[0]);
                     const labelRadius = radius + 50;
                     const labelX = centerX + Math.cos(angle) * labelRadius;
                     const labelY = centerY + Math.sin(angle) * labelRadius;
