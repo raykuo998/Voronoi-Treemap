@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voronoi Treemap - 嵌套分層版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .method-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            background: #6c757d;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .breadcrumb {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tooltip {
+            position: fixed;
+            display: none;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            padding: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .instructions li::before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="mainTitle">🌍 Voronoi Treemap 嵌套分層</h1>
+        <p class="subtitle" id="subtitle">同一大洲的國家聚集在一起 - 類似 NATO 圖表效果</p>
+        <div style="text-align: center;">
+            <span class="method-badge">🏛️ 嵌套結構：大洲區域內顯示國家</span>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="back-btn" id="backBtn" onclick="goBack()">← 返回上層</button>
+            <button id="resetBtn" onclick="reset()">⌂ 回到根節點</button>
+            <span class="breadcrumb" id="breadcrumb"></span>
+        </div>
+
+        <div class="chart-container">
+            <svg id="chart"></svg>
+        </div>
+
+        <div class="instructions">
+            <h3>嵌套分層特點</h3>
+            <ul>
+                <li>所有國家都在根視圖中顯示</li>
+                <li>同一大洲的國家聚集成連貫區域（類似 NATO）</li>
+                <li>先計算大洲區域，再在區域內分配國家</li>
+                <li>點擊任何國家可放大該大洲視圖</li>
+                <li>面積代表人口比例</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script>
+        if (typeof d3 === 'undefined') {
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>⚠️ D3.js 加載失敗</h2><p>請檢查網絡連接</p></div>';
+            throw new Error('D3.js failed to load');
+        }
+    </script>
+
+    <script>
+        // 世界人口資料
+        const worldData = {
+            name: "World",
+            children: [
+                {
+                    name: "Asia",
+                    children: [
+                        { name: "China", value: 1411778724 },
+                        { name: "India", value: 1380004385 },
+                        { name: "Indonesia", value: 273523615 },
+                        { name: "Pakistan", value: 220892340 },
+                        { name: "Bangladesh", value: 164689383 },
+                        { name: "Japan", value: 126476461 },
+                        { name: "Philippines", value: 109581078 },
+                        { name: "Vietnam", value: 97338579 },
+                        { name: "Turkey", value: 84339067 },
+                        { name: "Iran", value: 83992949 }
+                    ]
+                },
+                {
+                    name: "Americas",
+                    children: [
+                        { name: "United States", value: 331002651 },
+                        { name: "Brazil", value: 212559417 },
+                        { name: "Mexico", value: 128932753 },
+                        { name: "Colombia", value: 50882891 },
+                        { name: "Argentina", value: 45195774 }
+                    ]
+                },
+                {
+                    name: "Africa",
+                    children: [
+                        { name: "Nigeria", value: 206139589 },
+                        { name: "Ethiopia", value: 114963588 },
+                        { name: "Egypt", value: 102334404 },
+                        { name: "Congo", value: 89561403 },
+                        { name: "South Africa", value: 59308690 }
+                    ]
+                },
+                {
+                    name: "Europe",
+                    children: [
+                        { name: "Russia", value: 145934462 },
+                        { name: "Germany", value: 83783942 },
+                        { name: "UK", value: 67886011 },
+                        { name: "France", value: 65273511 },
+                        { name: "Italy", value: 60461826 },
+                        { name: "Spain", value: 46754778 }
+                    ]
+                }
+            ]
+        };
+
+        // 全域變數
+        let currentData = worldData;
+        let history = [];
+        const width = 1000;
+        const height = 1000;
+        const radius = Math.min(width, height) / 2 - 80;
+
+        // 大洲顏色方案
+        const continentColorSchemes = {
+            'Asia': d3.interpolatePurples,
+            'Americas': d3.interpolateReds,
+            'Africa': d3.interpolateGreens,
+            'Europe': d3.interpolateBlues
+        };
+
+        // 計算多邊形質心
+        function polygonCentroid(polygon) {
+            if (!polygon || polygon.length === 0) return [0, 0];
+            let x = 0, y = 0, n = polygon.length;
+            for (let i = 0; i < n; i++) {
+                x += polygon[i][0];
+                y += polygon[i][1];
+            }
+            return [x / n, y / n];
+        }
+
+        // 裁切多邊形到圓形
+        function clipPolygonToCircle(polygon, cx, cy, r) {
+            if (!polygon || polygon.length < 3) return polygon;
+            
+            const result = [];
+            const n = polygon.length;
+            
+            for (let i = 0; i < n; i++) {
+                const current = polygon[i];
+                const next = polygon[(i + 1) % n];
+                
+                const currentInside = Math.sqrt(Math.pow(current[0] - cx, 2) + Math.pow(current[1] - cy, 2)) <= r;
+                const nextInside = Math.sqrt(Math.pow(next[0] - cx, 2) + Math.pow(next[1] - cy, 2)) <= r;
+                
+                if (currentInside) {
+                    result.push(current);
+                }
+                
+                if (currentInside !== nextInside) {
+                    // 找交點
+                    const intersection = lineCircleIntersection(current, next, cx, cy, r);
+                    if (intersection) {
+                        result.push(intersection);
+                    }
+                }
+            }
+            
+            return result.length >= 3 ? result : polygon;
+        }
+
+        // 線段與圓的交點
+        function lineCircleIntersection(p1, p2, cx, cy, r) {
+            const dx = p2[0] - p1[0];
+            const dy = p2[1] - p1[1];
+            const fx = p1[0] - cx;
+            const fy = p1[1] - cy;
+            
+            const a = dx * dx + dy * dy;
+            const b = 2 * (fx * dx + fy * dy);
+            const c = fx * fx + fy * fy - r * r;
+            
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return null;
+            
+            const t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
+            const t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+            
+            let t = null;
+            if (t1 >= 0 && t1 <= 1) t = t1;
+            else if (t2 >= 0 && t2 <= 1) t = t2;
+            
+            if (t === null) return null;
+            
+            return [p1[0] + t * dx, p1[1] + t * dy];
+        }
+
+        function renderChart(data) {
+            d3.select('#chart').selectAll('*').remove();
+
+            const svg = d3.select('#chart')
+                .attr('width', width)
+                .attr('height', height);
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // 創建層級資料
+            const root = d3.hierarchy(data)
+                .sum(d => d.value || 0)
+                .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+            const isWorldView = data.name === "World";
+
+            // 繪製外圓邊框
+            svg.append('circle')
+                .attr('cx', centerX)
+                .attr('cy', centerY)
+                .attr('r', radius)
+                .attr('fill', 'none')
+                .attr('stroke', '#333')
+                .attr('stroke-width', 4);
+
+            // 創建圓形裁切路徑
+            const defs = svg.append('defs');
+            defs.append('clipPath')
+                .attr('id', 'circle-clip')
+                .append('circle')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', radius);
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${centerX},${centerY})`)
+                .attr('clip-path', 'url(#circle-clip)');
+
+            if (isWorldView) {
+                // ========== 嵌套 Voronoi：World 視圖 ==========
+                
+                // 第一步：為大洲創建 Voronoi
+                const continents = root.children || [];
+                
+                // 使用 pack 為大洲計算位置
+                const packLayout = d3.pack()
+                    .size([radius * 2, radius * 2])
+                    .padding(5);
+                
+                packLayout(root);
+                
+                // 大洲的種子點
+                const continentSites = continents.map(d => [d.x - radius, d.y - radius]);
+                const continentVoronoi = d3.Delaunay.from(continentSites)
+                    .voronoi([-radius, -radius, radius, radius]);
+
+                // 儲存所有國家的繪製數據
+                const allCountryData = [];
+
+                // 第二步：在每個大洲區域內為國家創建子 Voronoi
+                continents.forEach((continent, continentIdx) => {
+                    const continentPolygon = continentVoronoi.cellPolygon(continentIdx);
+                    if (!continentPolygon) return;
+
+                    const countries = continent.children || [];
+                    if (countries.length === 0) return;
+
+                    // 獲取顏色方案
+                    const colorScheme = continentColorSchemes[continent.data.name] || d3.interpolateRainbow;
+
+                    // 計算大洲多邊形的邊界框
+                    const minX = Math.min(...continentPolygon.map(p => p[0]));
+                    const maxX = Math.max(...continentPolygon.map(p => p[0]));
+                    const minY = Math.min(...continentPolygon.map(p => p[1]));
+                    const maxY = Math.max(...continentPolygon.map(p => p[1]));
+                    const polyWidth = maxX - minX;
+                    const polyHeight = maxY - minY;
+
+                    // 為國家創建 pack layout 並映射到大洲區域
+                    const continentHierarchy = d3.hierarchy(continent.data)
+                        .sum(d => d.value || 0)
+                        .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+                    const countryPack = d3.pack()
+                        .size([polyWidth * 0.9, polyHeight * 0.9])
+                        .padding(2);
+
+                    countryPack(continentHierarchy);
+
+                    // 國家的種子點（相對於大洲區域）
+                    const countryNodes = continentHierarchy.leaves();
+                    const polyCentroid = polygonCentroid(continentPolygon);
+                    
+                    const countrySites = countryNodes.map(d => {
+                        // 將 pack 座標映射到大洲區域中心
+                        const offsetX = d.x - polyWidth * 0.45;
+                        const offsetY = d.y - polyHeight * 0.45;
+                        return [
+                            polyCentroid[0] + offsetX,
+                            polyCentroid[1] + offsetY
+                        ];
+                    });
+
+                    // 創建國家的 Voronoi（範圍限制在大洲多邊形內）
+                    const countryVoronoi = d3.Delaunay.from(countrySites)
+                        .voronoi([minX, minY, maxX, maxY]);
+
+                    // 收集國家數據
+                    countryNodes.forEach((country, countryIdx) => {
+                        let countryPolygon = countryVoronoi.cellPolygon(countryIdx);
+                        if (!countryPolygon) return;
+
+                        // 裁切國家多邊形到大洲多邊形內
+                        countryPolygon = clipToPolygon(countryPolygon, continentPolygon);
+                        
+                        if (!countryPolygon || countryPolygon.length < 3) return;
+
+                        allCountryData.push({
+                            polygon: countryPolygon,
+                            country: country,
+                            continent: continent,
+                            continentIdx: continentIdx,
+                            countryIdx: countryIdx,
+                            color: colorScheme(0.4 + (countryIdx / countryNodes.length) * 0.5),
+                            site: countrySites[countryIdx]
+                        });
+                    });
+                });
+
+                // 繪製所有國家
+                g.selectAll('.country-cell')
+                    .data(allCountryData)
+                    .join('path')
+                    .attr('class', 'country-cell')
+                    .attr('d', d => "M" + d.polygon.join("L") + "Z")
+                    .attr('fill', d => d.color)
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 1.5)
+                    .attr('opacity', 0.9)
+                    .style('cursor', 'pointer')
+                    .on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 1)
+                            .attr('stroke-width', 3);
+                        
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY + 10 + 'px';
+                        
+                        const totalValue = root.value || 1;
+                        const percentage = ((d.country.value || 0) / totalValue * 100).toFixed(1);
+                        
+                        tooltip.innerHTML = `
+                            <strong>${d.country.data.name} (${d.continent.data.name})</strong>
+                            <div>人口: ${(d.country.value || 0).toLocaleString()}</div>
+                            <div>佔世界: ${percentage}%</div>
+                            <div style="margin-top: 4px; font-style: italic;">點擊查看 ${d.continent.data.name} 詳情 →</div>
+                        `;
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .attr('opacity', 0.9)
+                            .attr('stroke-width', 1.5);
+                        document.getElementById('tooltip').style.display = 'none';
+                    })
+                    .on('click', function(event, d) {
+                        event.stopPropagation();
+                        drillDown(d.continent.data);
+                    });
+
+                // 繪製大洲邊界（粗線）
+                g.selectAll('.continent-border')
+                    .data(continents)
+                    .join('path')
+                    .attr('class', 'continent-border')
+                    .attr('d', (d, i) => {
+                        const polygon = continentVoronoi.cellPolygon(i);
+                        return polygon ? "M" + polygon.join("L") + "Z" : null;
+                    })
+                    .attr('fill', 'none')
+                    .attr('stroke', '#333')
+                    .attr('stroke-width', 3)
+                    .style('pointer-events', 'none');
+
+                // 添加國家標籤
+                g.selectAll('.country-label')
+                    .data(allCountryData)
+                    .join('text')
+                    .attr('class', 'country-label')
+                    .attr('x', d => polygonCentroid(d.polygon)[0])
+                    .attr('y', d => polygonCentroid(d.polygon)[1])
+                    .attr('text-anchor', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', d => {
+                        const area = Math.abs(d3.polygonArea(d.polygon));
+                        return Math.max(8, Math.min(18, Math.sqrt(area) / 12)) + 'px';
+                    })
+                    .attr('font-weight', 'bold')
+                    .style('pointer-events', 'none')
+                    .style('text-shadow', '1px 1px 3px rgba(0,0,0,0.8)')
+                    .text(d => {
+                        const area = Math.abs(d3.polygonArea(d.polygon));
+                        const name = d.country.data.name;
+                        
+                        if (area > 8000) return name;
+                        if (area > 4000) return name.length > 10 ? name.substring(0, 10) : name;
+                        if (area > 2000) return name.length > 6 ? name.substring(0, 6) : name;
+                        return '';
+                    });
+
+            } else {
+                // ========== 大洲視圖：只顯示該大洲的國家 ==========
+                const countries = root.children || [];
+                
+                const pack = d3.pack()
+                    .size([radius * 2, radius * 2])
+                    .padding(3);
+                pack(root);
+
+                const sites = countries.map(d => [d.x - radius, d.y - radius]);
+                const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
+
+                const colorScheme = continentColorSchemes[data.name] || d3.interpolateRainbow;
+
+                g.selectAll('path')
+                    .data(countries)
+                    .join('path')
+                    .attr('d', (d, i) => voronoi.renderCell(i))
+                    .attr('fill', (d, i) => colorScheme(0.4 + (i / countries.length) * 0.5))
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2)
+                    .attr('opacity', 0.9)
+                    .style('cursor', 'pointer')
+                    .on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 1)
+                            .attr('stroke-width', 3);
+                        
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY + 10 + 'px';
+                        
+                        const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                        
+                        tooltip.innerHTML = `
+                            <strong>${d.data.name}</strong>
+                            <div>人口: ${(d.value || 0).toLocaleString()}</div>
+                            <div>佔 ${data.name}: ${percentage}%</div>
+                        `;
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .attr('opacity', 0.9)
+                            .attr('stroke-width', 2);
+                        document.getElementById('tooltip').style.display = 'none';
+                    });
+
+                g.selectAll('text')
+                    .data(countries)
+                    .join('text')
+                    .attr('x', d => d.x - radius)
+                    .attr('y', d => d.y - radius)
+                    .attr('text-anchor', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', d => {
+                        const area = Math.PI * Math.pow(d.r || 0, 2);
+                        return Math.max(10, Math.min(24, Math.sqrt(area) / 6)) + 'px';
+                    })
+                    .attr('font-weight', 'bold')
+                    .style('pointer-events', 'none')
+                    .style('text-shadow', '2px 2px 4px rgba(0,0,0,0.7)')
+                    .text(d => d.data.name);
+            }
+
+            // 在 World 視圖添加外圈大洲標籤
+            if (isWorldView) {
+                const continents = root.children || [];
+                
+                continents.forEach(continent => {
+                    const angle = Math.atan2(continent.y - radius, continent.x - radius);
+                    const labelRadius = radius + 50;
+                    const labelX = centerX + Math.cos(angle) * labelRadius;
+                    const labelY = centerY + Math.sin(angle) * labelRadius;
+                    
+                    const textElement = svg.append('text')
+                        .attr('x', labelX)
+                        .attr('y', labelY)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#333')
+                        .attr('font-size', '15px')
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(continent.data.name);
+                    
+                    const bbox = textElement.node().getBBox();
+                    
+                    svg.insert('rect', () => textElement.node())
+                        .attr('x', bbox.x - 6)
+                        .attr('y', bbox.y - 3)
+                        .attr('width', bbox.width + 12)
+                        .attr('height', bbox.height + 6)
+                        .attr('fill', 'white')
+                        .attr('opacity', 0.95)
+                        .attr('rx', 6)
+                        .attr('ry', 6)
+                        .attr('stroke', '#999')
+                        .attr('stroke-width', 1.5)
+                        .style('pointer-events', 'none');
+                });
+            }
+
+            svg.on('click', () => {
+                if (history.length > 0) goBack();
+            });
+
+            updateControls();
+        }
+
+        // 將多邊形裁切到另一個多邊形內（簡化版本，使用邊界框）
+        function clipToPolygon(subject, clip) {
+            if (!subject || !clip || subject.length < 3 || clip.length < 3) return subject;
+            
+            // 使用 Sutherland-Hodgman 算法的簡化版本
+            let output = subject;
+            
+            for (let i = 0; i < clip.length; i++) {
+                if (output.length === 0) return [];
+                
+                const input = output;
+                output = [];
+                
+                const edgeStart = clip[i];
+                const edgeEnd = clip[(i + 1) % clip.length];
+                
+                for (let j = 0; j < input.length; j++) {
+                    const current = input[j];
+                    const next = input[(j + 1) % input.length];
+                    
+                    const currentInside = isLeft(edgeStart, edgeEnd, current);
+                    const nextInside = isLeft(edgeStart, edgeEnd, next);
+                    
+                    if (currentInside) {
+                        output.push(current);
+                        if (!nextInside) {
+                            const intersection = lineIntersection(edgeStart, edgeEnd, current, next);
+                            if (intersection) output.push(intersection);
+                        }
+                    } else if (nextInside) {
+                        const intersection = lineIntersection(edgeStart, edgeEnd, current, next);
+                        if (intersection) output.push(intersection);
+                    }
+                }
+            }
+            
+            return output.length >= 3 ? output : subject;
+        }
+
+        function isLeft(a, b, c) {
+            return ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) >= 0;
+        }
+
+        function lineIntersection(p1, p2, p3, p4) {
+            const d = (p1[0] - p2[0]) * (p3[1] - p4[1]) - (p1[1] - p2[1]) * (p3[0] - p4[0]);
+            if (Math.abs(d) < 1e-10) return null;
+            
+            const t = ((p1[0] - p3[0]) * (p3[1] - p4[1]) - (p1[1] - p3[1]) * (p3[0] - p4[0])) / d;
+            
+            return [
+                p1[0] + t * (p2[0] - p1[0]),
+                p1[1] + t * (p2[1] - p1[1])
+            ];
+        }
+
+        function drillDown(data) {
+            history.push(currentData);
+            currentData = data;
+            renderChart(currentData);
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                currentData = history.pop();
+                renderChart(currentData);
+            }
+        }
+
+        function reset() {
+            currentData = worldData;
+            history = [];
+            renderChart(currentData);
+        }
+
+        function updateControls() {
+            const controls = document.getElementById('controls');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const mainTitle = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('subtitle');
+            
+            if (currentData !== worldData || history.length > 0) {
+                controls.style.display = 'flex';
+                breadcrumb.textContent = currentData !== worldData ? `當前: ${currentData.name}` : '';
+                
+                if (currentData.name !== "World") {
+                    mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} 人口分布`;
+                    subtitle.textContent = '點擊空白處返回世界視圖';
+                } else {
+                    mainTitle.textContent = '🌍 Voronoi Treemap 嵌套分層';
+                    subtitle.textContent = '同一大洲的國家聚集在一起';
+                }
+            } else {
+                controls.style.display = 'none';
+                mainTitle.textContent = '🌍 Voronoi Treemap 嵌套分層';
+                subtitle.textContent = '同一大洲的國家聚集在一起 - 類似 NATO 圖表效果';
+            }
+        }
+        
+        function getFlagEmoji(continentName) {
+            const emojiMap = {
+                'Asia': '🌏',
+                'Americas': '🌎',
+                'Africa': '🌍',
+                'Europe': '🇪🇺'
+            };
+            return emojiMap[continentName] || '🌍';
+        }
+
+        renderChart(currentData);
+    </script>
+</body>
+</html>

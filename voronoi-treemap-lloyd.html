@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voronoi Treemap - Lloyd's Relaxation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .method-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            background: #6c757d;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .breadcrumb {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tooltip {
+            position: fixed;
+            display: none;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            padding: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .instructions li::before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="mainTitle">🌍 Voronoi Treemap - Lloyd's Relaxation</h1>
+        <p class="subtitle" id="subtitle">方案 A：使用 Lloyd's Relaxation 迭代優化</p>
+        <div style="text-align: center;">
+            <span class="method-badge">⚙️ 加權 Voronoi：5 次迭代調整</span>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="back-btn" id="backBtn" onclick="goBack()">← 返回上層</button>
+            <button id="resetBtn" onclick="reset()">⌂ 回到根節點</button>
+            <span class="breadcrumb" id="breadcrumb"></span>
+        </div>
+
+        <div class="chart-container">
+            <svg id="chart"></svg>
+        </div>
+
+        <div class="instructions">
+            <h3>Lloyd's Relaxation 方案特點</h3>
+            <ul>
+                <li>迭代調整種子點位置，讓 Voronoi cell 面積更接近實際權重</li>
+                <li>每次迭代將種子點移向其 Voronoi cell 的加權質心</li>
+                <li>權重越大的區塊，移動幅度越大，佔據空間更合理</li>
+                <li>經過 5 次迭代後，區塊分布更均勻、更美觀</li>
+                <li>適合需要精確面積分配的視覺化需求</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script>
+        if (typeof d3 === 'undefined') {
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>⚠️ D3.js 加載失敗</h2><p>請檢查網絡連接</p></div>';
+            throw new Error('D3.js failed to load');
+        }
+    </script>
+
+    <script>
+        const worldData = {
+            name: "World",
+            children: [
+                {
+                    name: "Asia",
+                    children: [
+                        { name: "China", value: 1411778724 },
+                        { name: "India", value: 1380004385 },
+                        { name: "Indonesia", value: 273523615 },
+                        { name: "Pakistan", value: 220892340 },
+                        { name: "Bangladesh", value: 164689383 },
+                        { name: "Japan", value: 126476461 },
+                        { name: "Philippines", value: 109581078 },
+                        { name: "Vietnam", value: 97338579 },
+                        { name: "Turkey", value: 84339067 },
+                        { name: "Iran", value: 83992949 }
+                    ]
+                },
+                {
+                    name: "Americas",
+                    children: [
+                        { name: "United States", value: 331002651 },
+                        { name: "Brazil", value: 212559417 },
+                        { name: "Mexico", value: 128932753 },
+                        { name: "Colombia", value: 50882891 },
+                        { name: "Argentina", value: 45195774 }
+                    ]
+                },
+                {
+                    name: "Africa",
+                    children: [
+                        { name: "Nigeria", value: 206139589 },
+                        { name: "Ethiopia", value: 114963588 },
+                        { name: "Egypt", value: 102334404 },
+                        { name: "Congo", value: 89561403 },
+                        { name: "South Africa", value: 59308690 }
+                    ]
+                },
+                {
+                    name: "Europe",
+                    children: [
+                        { name: "Russia", value: 145934462 },
+                        { name: "Germany", value: 83783942 },
+                        { name: "UK", value: 67886011 },
+                        { name: "France", value: 65273511 },
+                        { name: "Italy", value: 60461826 },
+                        { name: "Spain", value: 46754778 }
+                    ]
+                }
+            ]
+        };
+
+        let currentData = worldData;
+        let history = [];
+        const width = 1000;
+        const height = 1000;
+        const radius = Math.min(width, height) / 2 - 80;
+
+        // Lloyd's Relaxation 算法
+        function lloydRelaxation(nodes, iterations = 5) {
+            let sites = nodes.map(d => ({
+                x: d.x - radius,
+                y: d.y - radius,
+                weight: Math.PI * d.r * d.r, // 使用面積作為權重
+                r: d.r,
+                node: d
+            }));
+            
+            const totalWeight = d3.sum(sites, s => s.weight);
+            
+            for (let iter = 0; iter < iterations; iter++) {
+                // 創建當前的 Voronoi
+                const positions = sites.map(s => [s.x, s.y]);
+                const delaunay = d3.Delaunay.from(positions);
+                const voronoi = delaunay.voronoi([-radius, -radius, radius, radius]);
+                
+                // 計算每個 cell 的加權質心並移動種子點
+                sites = sites.map((site, idx) => {
+                    const cell = voronoi.cellPolygon(idx);
+                    if (!cell || cell.length === 0) return site;
+                    
+                    // 計算 cell 的質心
+                    const centroid = d3.polygonCentroid(cell);
+                    
+                    // 計算 cell 的實際面積
+                    const cellArea = Math.abs(d3.polygonArea(cell));
+                    
+                    // 根據權重比例決定移動幅度
+                    // 權重越大，越需要更多空間，移動得越積極
+                    const targetRatio = site.weight / totalWeight;
+                    const actualRatio = cellArea / (Math.PI * radius * radius);
+                    const difference = targetRatio - actualRatio;
+                    
+                    // 移動幅度：根據面積差異和迭代次數調整
+                    const moveStrength = 0.3 * (1 - iter / iterations); // 逐漸減小移動幅度
+                    const moveFactor = moveStrength * (1 + Math.abs(difference) * 5);
+                    
+                    // 計算新位置
+                    let newX = site.x + (centroid[0] - site.x) * moveFactor;
+                    let newY = site.y + (centroid[1] - site.y) * moveFactor;
+                    
+                    // 限制在圓形範圍內
+                    const dist = Math.sqrt(newX * newX + newY * newY);
+                    if (dist > radius - site.r) {
+                        const scale = (radius - site.r) / dist;
+                        newX *= scale;
+                        newY *= scale;
+                    }
+                    
+                    return {
+                        x: newX,
+                        y: newY,
+                        weight: site.weight,
+                        r: site.r,
+                        node: site.node
+                    };
+                });
+            }
+            
+            return sites;
+        }
+
+        function renderChart(data) {
+            d3.select('#chart').selectAll('*').remove();
+
+            const svg = d3.select('#chart')
+                .attr('width', width)
+                .attr('height', height);
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            const root = d3.hierarchy(data)
+                .sum(d => d.value || 1)
+                .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+            const pack = d3.pack()
+                .size([radius * 2, radius * 2])
+                .padding(3);
+
+            pack(root);
+
+            const nodesToShow = data.name === "World" ? root.leaves() : (root.children || []);
+
+            const continentColorSchemes = {
+                'Asia': d3.interpolatePurples,
+                'Americas': d3.interpolateReds,
+                'Africa': d3.interpolateGreens,
+                'Europe': d3.interpolateBlues
+            };
+
+            const getNodeColor = (d, i) => {
+                let continentName;
+                if (data.name === "World") {
+                    continentName = d.parent ? d.parent.data.name : null;
+                } else {
+                    continentName = data.name;
+                }
+                
+                if (continentName && continentColorSchemes[continentName]) {
+                    const colorScheme = continentColorSchemes[continentName];
+                    const siblings = data.name === "World" 
+                        ? (d.parent ? d.parent.children : [d])
+                        : nodesToShow;
+                    const siblingIndex = siblings.indexOf(d);
+                    return colorScheme(0.4 + (siblingIndex / siblings.length) * 0.5);
+                }
+                
+                return d3.interpolateRainbow(i / nodesToShow.length);
+            };
+
+            svg.append('circle')
+                .attr('cx', centerX)
+                .attr('cy', centerY)
+                .attr('r', radius)
+                .attr('fill', 'none')
+                .attr('stroke', '#333')
+                .attr('stroke-width', 4);
+
+            const defs = svg.append('defs');
+            defs.append('clipPath')
+                .attr('id', 'circle-clip')
+                .append('circle')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', radius);
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${centerX},${centerY})`)
+                .attr('clip-path', 'url(#circle-clip)');
+
+            if (nodesToShow && nodesToShow.length > 0) {
+                // 使用 Lloyd's Relaxation 優化種子點位置
+                const optimizedSites = lloydRelaxation(nodesToShow, 5);
+                const sites = optimizedSites.map(s => [s.x, s.y]);
+                
+                const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
+
+                g.selectAll('path')
+                    .data(nodesToShow)
+                    .join('path')
+                    .attr('d', (d, i) => voronoi.renderCell(i))
+                    .attr('fill', (d, i) => getNodeColor(d, i))
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2)
+                    .attr('opacity', 0.85)
+                    .style('cursor', 'pointer')
+                    .on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 1)
+                            .attr('stroke-width', 3);
+                        
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY + 10 + 'px';
+                        
+                        const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                        const parentName = d.parent && d.parent.data.name !== "World" ? ` (${d.parent.data.name})` : '';
+                        
+                        const clickHint = data.name === "World" 
+                            ? `<div style="margin-top: 4px; font-style: italic;">點擊查看 ${d.parent.data.name} →</div>`
+                            : '';
+                        
+                        tooltip.innerHTML = `
+                            <strong>${d.data.name}${parentName}</strong>
+                            <div>Population: ${(d.value || 0).toLocaleString()}</div>
+                            <div>Percentage: ${percentage}%</div>
+                            ${clickHint}
+                        `;
+                    })
+                    .on('mouseout', function(event, d) {
+                        d3.select(this)
+                            .attr('opacity', 0.85)
+                            .attr('stroke-width', 2);
+                        
+                        document.getElementById('tooltip').style.display = 'none';
+                    })
+                    .on('click', function(event, d) {
+                        event.stopPropagation();
+                        if (data.name === "World" && d.parent && d.parent.data.name !== "World") {
+                            drillDown(d.parent.data);
+                        }
+                    });
+
+                // 使用優化後的位置放置標籤
+                g.selectAll('text')
+                    .data(nodesToShow)
+                    .join('text')
+                    .attr('x', (d, i) => optimizedSites[i].x)
+                    .attr('y', (d, i) => optimizedSites[i].y)
+                    .attr('text-anchor', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', d => {
+                        const area = Math.PI * Math.pow(d.r || 0, 2);
+                        return Math.max(9, Math.min(20, Math.sqrt(area) / 8)) + 'px';
+                    })
+                    .attr('font-weight', 'bold')
+                    .style('pointer-events', 'none')
+                    .style('text-shadow', '2px 2px 4px rgba(0,0,0,0.7)')
+                    .text(d => {
+                        const area = Math.PI * Math.pow(d.r || 0, 2);
+                        const name = d.data.name;
+                        
+                        if (area > 3000) {
+                            return name;
+                        } else if (area > 1500) {
+                            return name.length > 10 ? name.substring(0, 10) : name;
+                        } else if (area > 800) {
+                            return name.length > 6 ? name.substring(0, 6) : name;
+                        } else {
+                            return '';
+                        }
+                    });
+            }
+
+            if (data.name === "World" && nodesToShow.length > 0) {
+                const continentGroups = {};
+                nodesToShow.forEach(node => {
+                    const continentName = node.parent ? node.parent.data.name : 'Unknown';
+                    if (!continentGroups[continentName]) {
+                        continentGroups[continentName] = {
+                            nodes: [],
+                            totalValue: 0,
+                            weightedX: 0,
+                            weightedY: 0
+                        };
+                    }
+                    const group = continentGroups[continentName];
+                    const value = node.value || 1;
+                    group.nodes.push(node);
+                    group.totalValue += value;
+                    group.weightedX += (node.x - radius) * value;
+                    group.weightedY += (node.y - radius) * value;
+                });
+
+                Object.keys(continentGroups).forEach(continentName => {
+                    if (continentName === 'Unknown') return;
+                    
+                    const group = continentGroups[continentName];
+                    const centerX_rel = group.weightedX / group.totalValue;
+                    const centerY_rel = group.weightedY / group.totalValue;
+                    const angle = Math.atan2(centerY_rel, centerX_rel);
+                    
+                    const labelRadius = radius + 55;
+                    const labelX = centerX + Math.cos(angle) * labelRadius;
+                    const labelY = centerY + Math.sin(angle) * labelRadius;
+                    
+                    const textElement = svg.append('text')
+                        .attr('x', labelX)
+                        .attr('y', labelY)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#333')
+                        .attr('font-size', '16px')
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(continentName);
+                    
+                    const bbox = textElement.node().getBBox();
+                    
+                    svg.insert('rect', () => textElement.node())
+                        .attr('x', bbox.x - 6)
+                        .attr('y', bbox.y - 3)
+                        .attr('width', bbox.width + 12)
+                        .attr('height', bbox.height + 6)
+                        .attr('fill', 'white')
+                        .attr('opacity', 0.95)
+                        .attr('rx', 6)
+                        .attr('ry', 6)
+                        .attr('stroke', '#999')
+                        .attr('stroke-width', 1.5)
+                        .style('pointer-events', 'none');
+                });
+            }
+
+            svg.on('click', () => {
+                if (history.length > 0) {
+                    goBack();
+                }
+            });
+
+            updateControls();
+        }
+
+        function drillDown(data) {
+            history.push(currentData);
+            currentData = data;
+            renderChart(currentData);
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                currentData = history.pop();
+                renderChart(currentData);
+            }
+        }
+
+        function reset() {
+            currentData = worldData;
+            history = [];
+            renderChart(currentData);
+        }
+
+        function updateControls() {
+            const controls = document.getElementById('controls');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const mainTitle = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('subtitle');
+            
+            if (currentData !== worldData || history.length > 0) {
+                controls.style.display = 'flex';
+                breadcrumb.textContent = currentData !== worldData ? `當前: ${currentData.name}` : '';
+                
+                if (currentData.name !== "World") {
+                    mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} 人口分布 - Lloyd's Relaxation`;
+                    subtitle.textContent = '點擊空白處返回世界視圖';
+                } else {
+                    mainTitle.textContent = '🌍 Voronoi Treemap - Lloyd\'s Relaxation';
+                    subtitle.textContent = '方案 A：使用 Lloyd\'s Relaxation 迭代優化';
+                }
+            } else {
+                controls.style.display = 'none';
+                mainTitle.textContent = '🌍 Voronoi Treemap - Lloyd\'s Relaxation';
+                subtitle.textContent = '方案 A：使用 Lloyd\'s Relaxation 迭代優化';
+            }
+        }
+        
+        function getFlagEmoji(continentName) {
+            const emojiMap = {
+                'Asia': '🌏',
+                'Americas': '🌎',
+                'Africa': '🌍',
+                'Europe': '🇪🇺'
+            };
+            return emojiMap[continentName] || '🌍';
+        }
+
+        renderChart(currentData);
+    </script>
+</body>
+</html>
