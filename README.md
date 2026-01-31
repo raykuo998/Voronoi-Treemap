@@ -6,7 +6,8 @@ A roadmap.sh-style skill visualization using weighted Voronoi Treemap algorithm 
 
 ## 🌟 Features
 
-- **Weighted Area Distribution**: Cell area accurately represents skill importance/proficiency
+- **Weighted Area Distribution**: Cell area represents number of unlocked sub-skills
+- **Usage Heatmap**: Color intensity represents usage frequency
 - **Hierarchical Grouping**: Skills grouped by domain (Frontend, Backend, DevOps, Mobile)
 - **Interactive Drill-Down**: Click any skill to zoom into its domain view
 - **roadmap.sh-Style Layout**: Clean domain clusters with thick borders
@@ -92,18 +93,23 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         {
             name: "Frontend",
             children: [
-                { name: "React", value: 180 },       // value = importance/proficiency
-                { name: "Vue.js", value: 150 },
-                { name: "TypeScript", value: 160 },
+                {
+                    name: "React",
+                    usage: 95,                        // usage = frequency (drives color intensity)
+                    subSkills: [
+                        { name: "Hooks", unlocked: true },
+                        { name: "Testing", unlocked: false }
+                    ]                                 // unlocked count drives area
+                },
                 // ... more skills
             ]
         },
         {
             name: "Backend",
             children: [
-                { name: "Node.js", value: 170 },
-                { name: "Python", value: 160 },
-                { name: "PostgreSQL", value: 130 },
+                { name: "Node.js", usage: 85, subSkills: [/* ... */] },
+                { name: "Python", usage: 70, subSkills: [/* ... */] },
+                { name: "PostgreSQL", usage: 60, subSkills: [/* ... */] },
                 // ... more skills
             ]
         },
@@ -112,10 +118,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 }
 ```
 
-**Value Guidelines:**
-- Represents skill importance, demand, or your proficiency level
-- Range: 50-200 points
-- Can be based on: GitHub stars, job postings, usage frequency, or personal assessment
+**Guidelines:**
+- `subSkills[].unlocked` count drives **area**
+- `usage` drives **color intensity**
 
 ## 📦 Dependencies
 
@@ -133,7 +138,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 1. Clone or download this repository
 2. Open `index.html` in a modern browser
 3. Wait 2-3 seconds for initial calculation
-4. Hover over skills to see proficiency details
+4. Hover over skills to see unlocked sub-skills and usage frequency
 5. Click any skill to drill down into domain view
 6. Click empty space to return to overview
 
@@ -151,7 +156,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 ## 🐛 Bug Fixes Applied
 
 ### Bug #1: Area Proportionality Failure
-- **Symptom**: High-value items appearing smaller than low-value items
+- **Symptom**: High-weight items appearing smaller than low-weight items
 - **Cause**: Used `d3.Delaunay` which ignores weights
 - **Evidence**: Expected vs actual area mismatch (35.7% → 8.6%)
 - **Fix**: Replaced with `d3.voronoiTreemap()`
@@ -181,7 +186,14 @@ const skillData = {
         {
             name: "Frontend",
             children: [
-                { name: "YourSkill", value: 150 },  // Add your skills here
+                {
+                    name: "YourSkill",
+                    usage: 50,
+                    subSkills: [
+                        { name: "Sub-skill A", unlocked: true },
+                        { name: "Sub-skill B", unlocked: false }
+                    ]
+                },
                 // ...
             ]
         }
@@ -189,11 +201,9 @@ const skillData = {
 };
 ```
 
-### Adjust Proficiency Values
-- **50-80**: Beginner level
-- **80-120**: Intermediate level
-- **120-160**: Advanced level
-- **160-200**: Expert level
+### Adjust Weights & Usage
+- **Area (weight)**: add/remove sub-skills and toggle `subSkills[].unlocked`
+- **Color intensity**: adjust `usage` (higher = darker within the domain color)
 
 ### Change Color Schemes
 ```javascript
@@ -234,4 +244,4 @@ Suggestions and improvements are welcome! Please open an issue or submit a pull 
 
 ---
 
-**Note**: The skill values in this demo are examples. Customize them to reflect your own proficiency levels or use objective metrics like GitHub stars, npm downloads, or job market demand.
+**Note**: The dummy `usage` numbers and `subSkills[].unlocked` flags are examples. Replace them with your own data (e.g., usage logs, commits, time tracking, or manual assessment).

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,18 +32,18 @@
             text-align: center;
             margin-bottom: 10px;
             font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .subtitle {
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             text-align: center;
             margin-bottom: 30px;
             font-size: 1.1rem;
         }
 
         .method-badge {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 8px 16px;
             border-radius: 20px;
             display: inline-block;
@@ -54,7 +55,7 @@
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             display: none;
             align-items: center;
@@ -102,7 +103,7 @@
         .chart-container {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             padding: 30px;
             display: flex;
             justify-content: center;
@@ -120,7 +121,7 @@
             pointer-events: none;
             z-index: 1000;
             max-width: 250px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             line-height: 1.6;
             backdrop-filter: blur(10px);
         }
@@ -136,7 +137,7 @@
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
 
@@ -226,7 +227,7 @@
             h1 {
                 font-size: 1.8rem;
             }
-            
+
             .controls {
                 flex-direction: column;
                 align-items: stretch;
@@ -238,6 +239,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 id="mainTitle">💻 Programming Skills Map</h1>
@@ -263,17 +265,20 @@
                 <li>Skills from the same domain grouped into contiguous regions (roadmap.sh-style)</li>
                 <li>Domains calculated first, then skills distributed within regions</li>
                 <li>Click any skill to zoom into its domain view</li>
-                <li>Area represents skill importance/proficiency</li>
+                <li>Area represents number of unlocked sub-skills</li>
+                <li>Color intensity represents usage frequency</li>
             </ul>
         </div>
 
         <div class="instructions">
             <h3>🔧 Technical Implementation</h3>
-            <p style="color: #666; margin-bottom: 15px;">roadmap.sh-style visualization using weighted Voronoi Treemap with domain grouping.</p>
-            
+            <p style="color: #666; margin-bottom: 15px;">roadmap.sh-style visualization using weighted Voronoi Treemap
+                with domain grouping.</p>
+
             <h4>💼 Four-Domain Grouping Strategy:</h4>
             <ul>
-                <li><strong>Why domain grouping?</strong> Creates clear skill clusters by technical area, similar to roadmap.sh's domain organization</li>
+                <li><strong>Why domain grouping?</strong> Creates clear skill clusters by technical area, similar to
+                    roadmap.sh's domain organization</li>
                 <li><strong>Selected domains:</strong>
                     <ul>
                         <li><strong>Frontend</strong> - UI/UX technologies (React, Vue, TypeScript, etc.)</li>
@@ -282,14 +287,15 @@
                         <li><strong>Mobile</strong> - Mobile development (React Native, Flutter, Swift, etc.)</li>
                     </ul>
                 </li>
-                <li><strong>Data structure:</strong> Two-level hierarchy - domains as parent nodes, skills as leaf nodes</li>
+                <li><strong>Data structure:</strong> Two-level hierarchy - domains as parent nodes, skills as leaf nodes
+                </li>
             </ul>
 
             <h4>🎯 roadmap.sh-Style Effect Implementation:</h4>
             <ul>
                 <li><strong>Step 1 - Domain Voronoi:</strong> Calculate 4 large domain polygons using weighted treemap
                     <ul>
-                        <li>Each domain gets area proportional to its total skill importance</li>
+                        <li>Each domain gets area proportional to its total unlocked sub-skills</li>
                         <li>Creates distinct regional boundaries (like roadmap.sh's skill groupings)</li>
                     </ul>
                 </li>
@@ -335,14 +341,16 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
             <h4>🔑 Key Difference from Standard Approach:</h4>
             <ul>
-                <li><strong>❌ Standard Voronoi (d3.Delaunay):</strong> Flat structure, countries distributed by seed point distance only
+                <li><strong>❌ Standard Voronoi (d3.Delaunay):</strong> Flat structure, countries distributed by seed
+                    point distance only
                     <ul>
                         <li>No weight consideration → incorrect proportions</li>
                         <li>No grouping → countries scatter randomly</li>
                         <li>Result: Fragmented, no regional patterns</li>
                     </ul>
                 </li>
-                <li><strong>✅ Weighted Voronoi Treemap:</strong> Hierarchical structure with area-proportional distribution
+                <li><strong>✅ Weighted Voronoi Treemap:</strong> Hierarchical structure with area-proportional
+                    distribution
                     <ul>
                         <li>Respects parent-child hierarchy → natural grouping</li>
                         <li>Iterative adjustment → accurate area matching</li>
@@ -355,7 +363,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             <ol>
                 <li><strong>Area proportionality failure:</strong>
                     <ul>
-                        <li><strong>Symptom:</strong> High-value items appearing smaller than low-value items</li>
+                        <li><strong>Symptom:</strong> High-weight items appearing smaller than low-weight items</li>
                         <li><strong>Cause:</strong> Used <code>d3.Delaunay</code> which ignores weights</li>
                         <li><strong>Evidence from logs:</strong> Expected vs actual area mismatch (35.7% → 8.6%)</li>
                         <li><strong>Fix:</strong> Replaced with <code>d3.voronoiTreemap()</code></li>
@@ -365,9 +373,12 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 <li><strong>Domain labels positioned at origin (0,0):</strong>
                     <ul>
                         <li><strong>Symptom:</strong> All 4 domain labels stuck in top-left corner</li>
-                        <li><strong>Cause:</strong> <code>voronoiTreemap()</code> doesn't preserve <code>x/y</code> coordinates from pack layout</li>
-                        <li><strong>Evidence from logs:</strong> <code>{"x":undefined,"y":undefined,"angle":null,"labelX":null}</code></li>
-                        <li><strong>Fix:</strong> Changed to use <code>d3.polygonCentroid(domain.polygon)</code> for angle calculation</li>
+                        <li><strong>Cause:</strong> <code>voronoiTreemap()</code> doesn't preserve <code>x/y</code>
+                            coordinates from pack layout</li>
+                        <li><strong>Evidence from logs:</strong>
+                            <code>{"x":undefined,"y":undefined,"angle":null,"labelX":null}</code></li>
+                        <li><strong>Fix:</strong> Changed to use <code>d3.polygonCentroid(domain.polygon)</code> for
+                            angle calculation</li>
                         <li><strong>Result:</strong> Labels correctly distributed around circle perimeter</li>
                     </ul>
                 </li>
@@ -381,7 +392,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 <li><code>d3-voronoi-treemap@1</code> - Hierarchical weighted Voronoi implementation</li>
             </ul>
             <p style="color: #d63384; margin-top: 10px; font-size: 13px;">
-                ⚠️ <strong>Important:</strong> Missing <code>d3-weighted-voronoi</code> will cause error: 
+                ⚠️ <strong>Important:</strong> Missing <code>d3-weighted-voronoi</code> will cause error:
                 <code>"i.weightedVoronoi is not a function"</code>
             </p>
 
@@ -416,54 +427,314 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 {
                     name: "Frontend",
                     children: [
-                        { name: "React", value: 180 },
-                        { name: "Vue.js", value: 150 },
-                        { name: "TypeScript", value: 160 },
-                        { name: "Angular", value: 120 },
-                        { name: "CSS/SASS", value: 140 },
-                        { name: "Webpack", value: 90 },
-                        { name: "Next.js", value: 110 },
-                        { name: "Tailwind", value: 100 },
-                        { name: "Redux", value: 85 },
-                        { name: "Jest", value: 75 }
+                        {
+                            name: "React",
+                            usage: 95,
+                            subSkills: [
+                                { name: "Hooks", unlocked: true },
+                                { name: "State management", unlocked: true },
+                                { name: "Routing", unlocked: true },
+                                { name: "Testing", unlocked: false },
+                                { name: "Performance", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Vue.js",
+                            usage: 60,
+                            subSkills: [
+                                { name: "Composition API", unlocked: true },
+                                { name: "Options API", unlocked: true },
+                                { name: "Routing", unlocked: false },
+                                { name: "State (Pinia)", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "TypeScript",
+                            usage: 88,
+                            subSkills: [
+                                { name: "Types & interfaces", unlocked: true },
+                                { name: "Generics", unlocked: true },
+                                { name: "Type narrowing", unlocked: true },
+                                { name: "Advanced utility types", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Angular",
+                            usage: 35,
+                            subSkills: [
+                                { name: "Components", unlocked: true },
+                                { name: "RxJS", unlocked: false },
+                                { name: "Forms", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "CSS/SASS",
+                            usage: 75,
+                            subSkills: [
+                                { name: "Layout (Flex/Grid)", unlocked: true },
+                                { name: "Responsive design", unlocked: true },
+                                { name: "Animations", unlocked: false },
+                                { name: "Design systems", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Webpack",
+                            usage: 20,
+                            subSkills: [
+                                { name: "Loaders", unlocked: true },
+                                { name: "Plugins", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Next.js",
+                            usage: 55,
+                            subSkills: [
+                                { name: "Routing", unlocked: true },
+                                { name: "Server components", unlocked: false },
+                                { name: "Data fetching", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Tailwind",
+                            usage: 65,
+                            subSkills: [
+                                { name: "Utility workflow", unlocked: true },
+                                { name: "Config & theme", unlocked: false },
+                                { name: "Component patterns", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Redux",
+                            usage: 30,
+                            subSkills: [
+                                { name: "Core concepts", unlocked: true },
+                                { name: "Redux Toolkit", unlocked: false },
+                                { name: "Middleware", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Jest",
+                            usage: 45,
+                            subSkills: [
+                                { name: "Unit tests", unlocked: true },
+                                { name: "Mocks", unlocked: false },
+                                { name: "Coverage", unlocked: false }
+                            ]
+                        }
                     ]
                 },
                 {
                     name: "Backend",
                     children: [
-                        { name: "Node.js", value: 170 },
-                        { name: "Python", value: 160 },
-                        { name: "Java", value: 140 },
-                        { name: "Go", value: 110 },
-                        { name: "PostgreSQL", value: 130 },
-                        { name: "MongoDB", value: 120 },
-                        { name: "Redis", value: 100 },
-                        { name: "GraphQL", value: 95 },
-                        { name: "REST API", value: 150 }
+                        {
+                            name: "Node.js",
+                            usage: 85,
+                            subSkills: [
+                                { name: "Async patterns", unlocked: true },
+                                { name: "Streams", unlocked: false },
+                                { name: "Testing", unlocked: false },
+                                { name: "Performance", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Python",
+                            usage: 70,
+                            subSkills: [
+                                { name: "Core syntax", unlocked: true },
+                                { name: "Packaging", unlocked: false },
+                                { name: "Asyncio", unlocked: false },
+                                { name: "Typing", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Java",
+                            usage: 40,
+                            subSkills: [
+                                { name: "OOP", unlocked: true },
+                                { name: "Spring basics", unlocked: false },
+                                { name: "JVM tuning", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Go",
+                            usage: 25,
+                            subSkills: [
+                                { name: "Goroutines", unlocked: true },
+                                { name: "Channels", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "PostgreSQL",
+                            usage: 60,
+                            subSkills: [
+                                { name: "Schema design", unlocked: true },
+                                { name: "Indexes", unlocked: true },
+                                { name: "Query tuning", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "MongoDB",
+                            usage: 30,
+                            subSkills: [
+                                { name: "Documents", unlocked: true },
+                                { name: "Aggregation", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Redis",
+                            usage: 35,
+                            subSkills: [
+                                { name: "Caching", unlocked: true },
+                                { name: "Data structures", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "GraphQL",
+                            usage: 20,
+                            subSkills: [
+                                { name: "Schemas", unlocked: true },
+                                { name: "Resolvers", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "REST API",
+                            usage: 80,
+                            subSkills: [
+                                { name: "Routing", unlocked: true },
+                                { name: "Auth patterns", unlocked: true },
+                                { name: "Pagination", unlocked: false },
+                                { name: "Versioning", unlocked: false }
+                            ]
+                        }
                     ]
                 },
                 {
                     name: "DevOps",
                     children: [
-                        { name: "Docker", value: 150 },
-                        { name: "Kubernetes", value: 130 },
-                        { name: "AWS", value: 140 },
-                        { name: "CI/CD", value: 120 },
-                        { name: "Terraform", value: 90 },
-                        { name: "Nginx", value: 100 },
-                        { name: "Jenkins", value: 85 },
-                        { name: "Git", value: 180 }
+                        {
+                            name: "Docker",
+                            usage: 65,
+                            subSkills: [
+                                { name: "Images & layers", unlocked: true },
+                                { name: "Compose", unlocked: true },
+                                { name: "Networking", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Kubernetes",
+                            usage: 30,
+                            subSkills: [
+                                { name: "Deployments", unlocked: true },
+                                { name: "Services", unlocked: false },
+                                { name: "Ingress", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "AWS",
+                            usage: 40,
+                            subSkills: [
+                                { name: "EC2/VPC basics", unlocked: true },
+                                { name: "S3", unlocked: true },
+                                { name: "IAM", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "CI/CD",
+                            usage: 55,
+                            subSkills: [
+                                { name: "Pipelines", unlocked: true },
+                                { name: "Testing stages", unlocked: false },
+                                { name: "Artifacts", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Terraform",
+                            usage: 15,
+                            subSkills: [
+                                { name: "State & modules", unlocked: true },
+                                { name: "Best practices", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Nginx",
+                            usage: 25,
+                            subSkills: [
+                                { name: "Reverse proxy", unlocked: true },
+                                { name: "TLS basics", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Jenkins",
+                            usage: 10,
+                            subSkills: [
+                                { name: "Jobs", unlocked: true },
+                                { name: "Agents", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Git",
+                            usage: 90,
+                            subSkills: [
+                                { name: "Branching", unlocked: true },
+                                { name: "Rebase", unlocked: true },
+                                { name: "Conflicts", unlocked: true },
+                                { name: "Hooks", unlocked: false }
+                            ]
+                        }
                     ]
                 },
                 {
                     name: "Mobile",
                     children: [
-                        { name: "React Native", value: 130 },
-                        { name: "Flutter", value: 120 },
-                        { name: "Swift", value: 110 },
-                        { name: "Kotlin", value: 100 },
-                        { name: "iOS Dev", value: 95 },
-                        { name: "Android", value: 90 }
+                        {
+                            name: "React Native",
+                            usage: 35,
+                            subSkills: [
+                                { name: "Navigation", unlocked: true },
+                                { name: "Native modules", unlocked: false },
+                                { name: "Performance", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Flutter",
+                            usage: 25,
+                            subSkills: [
+                                { name: "Widgets", unlocked: true },
+                                { name: "State mgmt", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Swift",
+                            usage: 15,
+                            subSkills: [
+                                { name: "UIKit/SwiftUI basics", unlocked: true },
+                                { name: "Concurrency", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Kotlin",
+                            usage: 18,
+                            subSkills: [
+                                { name: "Syntax", unlocked: true },
+                                { name: "Coroutines", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "iOS Dev",
+                            usage: 12,
+                            subSkills: [
+                                { name: "App lifecycle", unlocked: true },
+                                { name: "Publishing", unlocked: false }
+                            ]
+                        },
+                        {
+                            name: "Android",
+                            usage: 14,
+                            subSkills: [
+                                { name: "Activities", unlocked: true },
+                                { name: "Jetpack basics", unlocked: false }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -495,24 +766,72 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             return [x / n, y / n];
         }
 
+        // Leaf weight (area) = number of unlocked sub-skills
+        function getSubSkillCounts(skill) {
+            const subSkills = Array.isArray(skill?.subSkills) ? skill.subSkills : [];
+            const total = subSkills.length;
+            const unlocked = subSkills.reduce((acc, s) => acc + (s && s.unlocked ? 1 : 0), 0);
+            return { unlocked, total };
+        }
+
+        // Color intensity = usage frequency (dummy metric)
+        function getUsageValue(skill) {
+            const usage = Number(skill?.usage);
+            return Number.isFinite(usage) ? usage : 0;
+        }
+
+        function createCirclePolygon(r, points = 64) {
+            const circlePolygon = [];
+            for (let i = 0; i < points; i++) {
+                const angle = (i / points) * 2 * Math.PI;
+                circlePolygon.push([Math.cos(angle) * r, Math.sin(angle) * r]);
+            }
+            return circlePolygon;
+        }
+
+        function collectLeafSkills(node) {
+            if (!node) return [];
+            const children = node.children;
+            if (Array.isArray(children)) {
+                return children.flatMap(collectLeafSkills);
+            }
+            return [node];
+        }
+
+        // Global usage scale so color intensity stays consistent across views
+        function createGlobalUsageIntensityScale(data) {
+            const usageValues = collectLeafSkills(data).map(getUsageValue);
+            const usageExtent = d3.extent(usageValues);
+            const hasUsageRange =
+                Number.isFinite(usageExtent[0]) &&
+                Number.isFinite(usageExtent[1]) &&
+                usageExtent[0] !== usageExtent[1];
+
+            return hasUsageRange
+                ? d3.scaleLinear().domain(usageExtent).range([0.25, 0.9]).clamp(true)
+                : () => 0.6;
+        }
+
+        const usageTGlobal = createGlobalUsageIntensityScale(skillData);
+
         // Clip polygon to circle
         function clipPolygonToCircle(polygon, cx, cy, r) {
             if (!polygon || polygon.length < 3) return polygon;
-            
+
             const result = [];
             const n = polygon.length;
-            
+
             for (let i = 0; i < n; i++) {
                 const current = polygon[i];
                 const next = polygon[(i + 1) % n];
-                
+
                 const currentInside = Math.sqrt(Math.pow(current[0] - cx, 2) + Math.pow(current[1] - cy, 2)) <= r;
                 const nextInside = Math.sqrt(Math.pow(next[0] - cx, 2) + Math.pow(next[1] - cy, 2)) <= r;
-                
+
                 if (currentInside) {
                     result.push(current);
                 }
-                
+
                 if (currentInside !== nextInside) {
                     // Find intersection
                     const intersection = lineCircleIntersection(current, next, cx, cy, r);
@@ -521,7 +840,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     }
                 }
             }
-            
+
             return result.length >= 3 ? result : polygon;
         }
 
@@ -531,23 +850,23 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const dy = p2[1] - p1[1];
             const fx = p1[0] - cx;
             const fy = p1[1] - cy;
-            
+
             const a = dx * dx + dy * dy;
             const b = 2 * (fx * dx + fy * dy);
             const c = fx * fx + fy * fy - r * r;
-            
+
             const discriminant = b * b - 4 * a * c;
             if (discriminant < 0) return null;
-            
+
             const t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
             const t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
-            
+
             let t = null;
             if (t1 >= 0 && t1 <= 1) t = t1;
             else if (t2 >= 0 && t2 <= 1) t = t2;
-            
+
             if (t === null) return null;
-            
+
             return [p1[0] + t * dx, p1[1] + t * dy];
         }
 
@@ -563,7 +882,12 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
             // Create hierarchical data
             const root = d3.hierarchy(data)
-                .sum(d => d.value || 0)
+                .sum(d => {
+                    // Internal nodes should not contribute extra weight; only leaves do.
+                    if (d && Array.isArray(d.children)) return 0;
+                    // Note: voronoi-treemap expects positive weights; keep 0-unlocked skills barely visible.
+                    return Math.max(0.001, getSubSkillCounts(d).unlocked);
+                })
                 .sort((a, b) => (b.value || 0) - (a.value || 0));
 
             const isWorldView = data.name === "Tech Skills";
@@ -592,14 +916,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
             if (isWorldView && typeof d3.voronoiTreemap !== 'undefined') {
                 // ========== Use d3-voronoi-treemap for weighted nested Voronoi ==========
-                
+
                 // Create circular clipping polygon
-                const circlePoints = 64;
-                const circlePolygon = [];
-                for (let i = 0; i < circlePoints; i++) {
-                    const angle = (i / circlePoints) * 2 * Math.PI;
-                    circlePolygon.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
-                }
+                const circlePolygon = createCirclePolygon(radius, 64);
 
                 // Use d3-voronoi-treemap for weighted hierarchy
                 const voronoiTreemap = d3.voronoiTreemap()
@@ -624,40 +943,43 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .attr('fill', d => {
                         const domainName = d.parent ? d.parent.data.name : 'Unknown';
                         const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
-                        return colorScheme(0.6); // Uniform color per continent
+                        return colorScheme(usageTGlobal(getUsageValue(d.data))); // usage-driven intensity (global scale)
                     })
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 1.5)
                     .attr('opacity', 0.9)
                     .style('cursor', 'pointer')
-                    .on('mouseover', function(event, d) {
+                    .on('mouseover', function (event, d) {
                         d3.select(this)
                             .attr('opacity', 1)
                             .attr('stroke-width', 3);
-                        
+
                         const tooltip = document.getElementById('tooltip');
                         tooltip.style.display = 'block';
                         tooltip.style.left = event.pageX + 10 + 'px';
                         tooltip.style.top = event.pageY + 10 + 'px';
-                        
+
                         const totalValue = root.value || 1;
                         const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
                         const domainName = d.parent ? d.parent.data.name : '';
-                        
+                        const { unlocked, total } = getSubSkillCounts(d.data);
+                        const usage = getUsageValue(d.data);
+
                         tooltip.innerHTML = `
                             <strong>${d.data.name} (${domainName})</strong>
-                            <div>Proficiency: ${(d.value || 0)} pts</div>
-                            <div>% of Total: ${percentage}%</div>
+                            <div>Unlocked sub-skills: ${unlocked}/${total}</div>
+                            <div>Usage frequency: ${usage}</div>
+                            <div>% of Total (unlocked): ${percentage}%</div>
                             <div style="margin-top: 4px; font-style: italic;">Click to view ${domainName} skills →</div>
                         `;
                     })
-                    .on('mouseout', function() {
+                    .on('mouseout', function () {
                         d3.select(this)
                             .attr('opacity', 0.9)
                             .attr('stroke-width', 1.5);
                         document.getElementById('tooltip').style.display = 'none';
                     })
-                    .on('click', function(event, d) {
+                    .on('click', function (event, d) {
                         event.stopPropagation();
                         if (d.parent && d.parent.data.name !== 'Tech Skills') {
                             drillDown(d.parent.data);
@@ -696,7 +1018,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         if (!d.polygon) return '';
                         const area = Math.abs(d3.polygonArea(d.polygon));
                         const name = d.data.name;
-                        
+
                         if (area > 8000) return name;
                         if (area > 4000) return name.length > 10 ? name.substring(0, 10) : name;
                         if (area > 2000) return name.length > 6 ? name.substring(0, 6) : name;
@@ -712,73 +1034,163 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .text('⚠️ d3-voronoi-treemap library failed to load');
             } else {
                 // ========== Domain view: only show skills in that domain ==========
-                const countries = root.children || [];
-                
-                const pack = d3.pack()
-                    .size([radius * 2, radius * 2])
-                    .padding(3);
-                pack(root);
+                if (typeof d3.voronoiTreemap !== 'undefined') {
+                    // Weighted voronoi (area follows unlocked count) within the same circle boundary
+                    const circlePolygon = createCirclePolygon(radius, 64);
+                    const voronoiTreemap = d3.voronoiTreemap()
+                        .clip(circlePolygon)
+                        .convergenceRatio(0.001)
+                        .maxIterationCount(100)
+                        .minWeightRatio(0.001);
 
-                const sites = countries.map(d => [d.x - radius, d.y - radius]);
-                const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
+                    voronoiTreemap(root);
 
-                const colorScheme = domainColorSchemes[data.name] || d3.interpolateRainbow;
+                    const skills = root.leaves();
+                    const colorScheme = domainColorSchemes[data.name] || d3.interpolateRainbow;
 
-                g.selectAll('path')
-                    .data(countries)
-                    .join('path')
-                    .attr('d', (d, i) => voronoi.renderCell(i))
-                    .attr('fill', () => colorScheme(0.6)) // Uniform color per continent
-                    .attr('stroke', '#fff')
-                    .attr('stroke-width', 2)
-                    .attr('opacity', 0.9)
-                    .style('cursor', 'pointer')
-                    .on('mouseover', function(event, d) {
-                        d3.select(this)
-                            .attr('opacity', 1)
-                            .attr('stroke-width', 3);
-                        
-                        const tooltip = document.getElementById('tooltip');
-                        tooltip.style.display = 'block';
-                        tooltip.style.left = event.pageX + 10 + 'px';
-                        tooltip.style.top = event.pageY + 10 + 'px';
-                        
-                        const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
-                        
-                        tooltip.innerHTML = `
-                            <strong>${d.data.name}</strong>
-                            <div>Proficiency: ${(d.value || 0)} pts</div>
-                            <div>% of ${data.name}: ${percentage}%</div>
-                        `;
-                    })
-                    .on('mouseout', function() {
-                        d3.select(this)
-                            .attr('opacity', 0.9)
-                            .attr('stroke-width', 2);
-                        document.getElementById('tooltip').style.display = 'none';
-                    });
+                    g.selectAll('.skill-cell')
+                        .data(skills)
+                        .join('path')
+                        .attr('class', 'skill-cell')
+                        .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
+                        .attr('fill', d => colorScheme(usageTGlobal(getUsageValue(d.data))))
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2)
+                        .attr('opacity', 0.9)
+                        .style('cursor', 'default')
+                        .on('click', function (event) {
+                            // prevent "click anywhere to go back" from firing when clicking a skill
+                            event.stopPropagation();
+                        })
+                        .on('mouseover', function (event, d) {
+                            d3.select(this)
+                                .attr('opacity', 1)
+                                .attr('stroke-width', 3);
 
-                g.selectAll('text')
-                    .data(countries)
-                    .join('text')
-                    .attr('x', d => d.x - radius)
-                    .attr('y', d => d.y - radius)
-                    .attr('text-anchor', 'middle')
-                    .attr('dominant-baseline', 'middle')
-                    .attr('fill', '#fff')
-                    .attr('font-size', d => {
-                        const area = Math.PI * Math.pow(d.r || 0, 2);
-                        return Math.max(10, Math.min(24, Math.sqrt(area) / 6)) + 'px';
-                    })
-                    .attr('font-weight', 'bold')
-                    .style('pointer-events', 'none')
-                    .text(d => d.data.name);
+                            const tooltip = document.getElementById('tooltip');
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = event.pageX + 10 + 'px';
+                            tooltip.style.top = event.pageY + 10 + 'px';
+
+                            const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                            const { unlocked, total } = getSubSkillCounts(d.data);
+                            const usage = getUsageValue(d.data);
+
+                            tooltip.innerHTML = `
+                                <strong>${d.data.name}</strong>
+                                <div>Unlocked sub-skills: ${unlocked}/${total}</div>
+                                <div>Usage frequency: ${usage}</div>
+                                <div>% of ${data.name} (unlocked): ${percentage}%</div>
+                            `;
+                        })
+                        .on('mouseout', function () {
+                            d3.select(this)
+                                .attr('opacity', 0.9)
+                                .attr('stroke-width', 2);
+                            document.getElementById('tooltip').style.display = 'none';
+                        });
+
+                    g.selectAll('.skill-label')
+                        .data(skills)
+                        .join('text')
+                        .attr('class', 'skill-label')
+                        .attr('x', d => d.polygon ? d3.polygonCentroid(d.polygon)[0] : 0)
+                        .attr('y', d => d.polygon ? d3.polygonCentroid(d.polygon)[1] : 0)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#fff')
+                        .attr('font-size', d => {
+                            if (!d.polygon) return '10px';
+                            const area = Math.abs(d3.polygonArea(d.polygon));
+                            return Math.max(10, Math.min(22, Math.sqrt(area) / 10)) + 'px';
+                        })
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(d => {
+                            if (!d.polygon) return '';
+                            const area = Math.abs(d3.polygonArea(d.polygon));
+                            const name = d.data.name;
+                            if (area > 7000) return name;
+                            if (area > 3500) return name.length > 10 ? name.substring(0, 10) : name;
+                            if (area > 1800) return name.length > 6 ? name.substring(0, 6) : name;
+                            return '';
+                        });
+                } else {
+                    // Fallback: pack + delaunay (not strictly area-proportional)
+                    const countries = root.children || [];
+
+                    const pack = d3.pack()
+                        .size([radius * 2, radius * 2])
+                        .padding(3);
+                    pack(root);
+
+                    const sites = countries.map(d => [d.x - radius, d.y - radius]);
+                    const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
+
+                    const colorScheme = domainColorSchemes[data.name] || d3.interpolateRainbow;
+
+                    g.selectAll('path')
+                        .data(countries)
+                        .join('path')
+                        .attr('d', (d, i) => voronoi.renderCell(i))
+                        .attr('fill', d => colorScheme(usageTGlobal(getUsageValue(d.data))))
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2)
+                        .attr('opacity', 0.9)
+                        .style('cursor', 'default')
+                        .on('click', function (event) {
+                            event.stopPropagation();
+                        })
+                        .on('mouseover', function (event, d) {
+                            d3.select(this)
+                                .attr('opacity', 1)
+                                .attr('stroke-width', 3);
+
+                            const tooltip = document.getElementById('tooltip');
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = event.pageX + 10 + 'px';
+                            tooltip.style.top = event.pageY + 10 + 'px';
+
+                            const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                            const { unlocked, total } = getSubSkillCounts(d.data);
+                            const usage = getUsageValue(d.data);
+
+                            tooltip.innerHTML = `
+                                <strong>${d.data.name}</strong>
+                                <div>Unlocked sub-skills: ${unlocked}/${total}</div>
+                                <div>Usage frequency: ${usage}</div>
+                                <div>% of ${data.name} (unlocked): ${percentage}%</div>
+                            `;
+                        })
+                        .on('mouseout', function () {
+                            d3.select(this)
+                                .attr('opacity', 0.9)
+                                .attr('stroke-width', 2);
+                            document.getElementById('tooltip').style.display = 'none';
+                        });
+
+                    g.selectAll('text')
+                        .data(countries)
+                        .join('text')
+                        .attr('x', d => d.x - radius)
+                        .attr('y', d => d.y - radius)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#fff')
+                        .attr('font-size', d => {
+                            const area = Math.PI * Math.pow(d.r || 0, 2);
+                            return Math.max(10, Math.min(24, Math.sqrt(area) / 6)) + 'px';
+                        })
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(d => d.data.name);
+                }
             }
 
             // Add outer ring domain labels in overview
             if (isWorldView) {
                 const continents = root.children || [];
-                
+
                 continents.forEach(continent => {
                     // Use polygon centroid to calculate angle
                     const centroid = continent.polygon ? d3.polygonCentroid(continent.polygon) : [0, 0];
@@ -786,7 +1198,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     const labelRadius = radius + 50;
                     const labelX = centerX + Math.cos(angle) * labelRadius;
                     const labelY = centerY + Math.sin(angle) * labelRadius;
-                    
+
                     const textElement = svg.append('text')
                         .attr('x', labelX)
                         .attr('y', labelY)
@@ -797,9 +1209,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         .attr('font-weight', 'bold')
                         .style('pointer-events', 'none')
                         .text(continent.data.name);
-                    
+
                     const bbox = textElement.node().getBBox();
-                    
+
                     svg.insert('rect', () => textElement.node())
                         .attr('x', bbox.x - 6)
                         .attr('y', bbox.y - 3)
@@ -825,25 +1237,25 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         // Clip polygon to another polygon (simplified Sutherland-Hodgman algorithm)
         function clipToPolygon(subject, clip) {
             if (!subject || !clip || subject.length < 3 || clip.length < 3) return subject;
-            
+
             let output = subject;
-            
+
             for (let i = 0; i < clip.length; i++) {
                 if (output.length === 0) return [];
-                
+
                 const input = output;
                 output = [];
-                
+
                 const edgeStart = clip[i];
                 const edgeEnd = clip[(i + 1) % clip.length];
-                
+
                 for (let j = 0; j < input.length; j++) {
                     const current = input[j];
                     const next = input[(j + 1) % input.length];
-                    
+
                     const currentInside = isLeft(edgeStart, edgeEnd, current);
                     const nextInside = isLeft(edgeStart, edgeEnd, next);
-                    
+
                     if (currentInside) {
                         output.push(current);
                         if (!nextInside) {
@@ -856,7 +1268,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     }
                 }
             }
-            
+
             return output.length >= 3 ? output : subject;
         }
 
@@ -867,9 +1279,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         function lineIntersection(p1, p2, p3, p4) {
             const d = (p1[0] - p2[0]) * (p3[1] - p4[1]) - (p1[1] - p2[1]) * (p3[0] - p4[0]);
             if (Math.abs(d) < 1e-10) return null;
-            
+
             const t = ((p1[0] - p3[0]) * (p3[1] - p4[1]) - (p1[1] - p3[1]) * (p3[0] - p4[0])) / d;
-            
+
             return [
                 p1[0] + t * (p2[0] - p1[0]),
                 p1[1] + t * (p2[1] - p1[1])
@@ -900,11 +1312,11 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const breadcrumb = document.getElementById('breadcrumb');
             const mainTitle = document.getElementById('mainTitle');
             const subtitle = document.getElementById('subtitle');
-            
+
             if (currentData !== skillData || history.length > 0) {
                 controls.style.display = 'flex';
                 breadcrumb.textContent = currentData !== skillData ? `Current: ${currentData.name}` : '';
-                
+
                 if (currentData.name !== "Tech Skills") {
                     mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} Skills`;
                     subtitle.textContent = 'Click empty space to return to overview';
@@ -918,7 +1330,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 subtitle.textContent = 'Skills grouped by domain - roadmap.sh-style visualization';
             }
         }
-        
+
         function getFlagEmoji(domainName) {
             const emojiMap = {
                 'Frontend': '🎨',
@@ -932,4 +1344,5 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         renderChart(currentData);
     </script>
 </body>
+
 </html>
