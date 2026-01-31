@@ -187,11 +187,16 @@ This generator:
 2. Run a local static server (recommended so `people.json` can be loaded via `fetch`)
    - Python: `python -m http.server 8000`
    - Node: `npx serve .`
-3. Open the site in your browser (for example `http://localhost:8000/index.html`)
+3. Open the site in your browser:
+   - Method 2 (fixed geometry): `http://localhost:8000/index.html`
+   - Method 1 (dynamic geometry): `http://localhost:8000/index-method1.html`
 4. Wait 2-3 seconds for initial calculation
 5. Hover over skills to see unlocked sub-skills and usage frequency
 6. Click any skill to drill down into domain view
 7. Click empty space to return to overview
+
+### Method 1 performance note
+Method 1 recomputes the weighted Voronoi treemap on each selection change so that **cell areas respond to the selected people**. This is inherently more expensive than Method 2; for very large datasets, expect slower updates.
 
 ## 🎨 Visualization Details
 

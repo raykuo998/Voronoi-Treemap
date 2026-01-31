@@ -1607,14 +1607,14 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const layout = (typeof d3.voronoiTreemap !== 'undefined') ? getOrComputeLayout(data) : null;
             const root = layout?.root || null;
 
-            // Draw outer circle border
+            // Draw outer circle border (removing dark border per request)
             svg.append('circle')
                 .attr('cx', centerX)
                 .attr('cy', centerY)
                 .attr('r', radius)
                 .attr('fill', 'none')
-                .attr('stroke', '#333')
-                .attr('stroke-width', 4);
+                .attr('stroke', 'none')
+                .attr('stroke-width', 0);
 
             // Create circular clip path
             const defs = svg.append('defs');
@@ -1708,15 +1708,15 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         }
                     });
 
-                // Draw domain borders (thick lines)
+                // Draw domain borders (removed per request)
                 g.selectAll('.domain-border')
                     .data(continents)
                     .join('path')
                     .attr('class', 'domain-border')
                     .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
                     .attr('fill', 'none')
-                    .attr('stroke', '#333')
-                    .attr('stroke-width', 3)
+                    .attr('stroke', 'none')
+                    .attr('stroke-width', 0)
                     .style('pointer-events', 'none');
 
                 // Add skill labels
@@ -1973,8 +1973,8 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         .attr('opacity', 0.95)
                         .attr('rx', 6)
                         .attr('ry', 6)
-                        .attr('stroke', '#999')
-                        .attr('stroke-width', 1.5)
+                        .attr('stroke', 'none')
+                        .attr('stroke-width', 0)
                         .style('pointer-events', 'none');
                 });
             }
