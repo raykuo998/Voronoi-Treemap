@@ -223,6 +223,101 @@
             color: #667eea;
         }
 
+        /* Legend block (under the chart) */
+        .legend-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 14px 16px;
+            margin-top: 12px;
+        }
+
+        .legend-title {
+            text-align: center;
+            color: #667eea;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 260px;
+        }
+
+        .legend-divider {
+            width: 1px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .legend-icon-size {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            border-radius: 999px;
+            background: #667eea;
+            opacity: 0.75;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-dot.dot-sm {
+            width: 10px;
+            height: 10px;
+        }
+
+        .legend-dot.dot-lg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .legend-icon-gradient {
+            width: 96px;
+            height: 14px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.18), rgba(102, 126, 234, 0.95));
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .legend-label {
+            font-weight: 800;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.1;
+        }
+
+        .legend-desc {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.35;
+            margin-top: 2px;
+        }
+
+        .legend-sub {
+            text-align: center;
+            color: rgba(0, 0, 0, 0.55);
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8rem;
@@ -256,6 +351,33 @@
 
         <div class="chart-container">
             <svg id="chart"></svg>
+        </div>
+
+        <div class="legend-card">
+            <div class="legend-title">Legend</div>
+            <div class="legend-row">
+                <div class="legend-item">
+                    <div class="legend-icon-size" aria-hidden="true">
+                        <span class="legend-dot dot-sm"></span>
+                        <span class="legend-dot dot-lg"></span>
+                    </div>
+                    <div>
+                        <div class="legend-label">Size</div>
+                        <div class="legend-desc">How well I know this skill</div>
+                    </div>
+                </div>
+                <div class="legend-divider" aria-hidden="true"></div>
+                <div class="legend-item">
+                    <div class="legend-icon-gradient" aria-hidden="true"></div>
+                    <div>
+                        <div class="legend-label">Color intensity</div>
+                        <div class="legend-desc">How frequent (proficient) I use this skill</div>
+                    </div>
+                </div>
+            </div>
+            <div class="legend-sub">
+                Area represents number of unlocked sub-skills • Color intensity represents usage frequency
+            </div>
         </div>
 
         <div class="instructions">
