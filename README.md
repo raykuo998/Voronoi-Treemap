@@ -122,6 +122,54 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 - `subSkills[].unlocked` count drives **area**
 - `usage` drives **color intensity**
 
+## 👥 Multi-person data (people.json)
+
+This project supports a multi-person mode where the Voronoi geometry is computed once from team-aggregate weights, and selecting/deselecting people updates only styling (color/opacity/tooltip).
+
+Create a `people.json` file next to `index.html`:
+
+```json
+{
+  "people": [
+    {
+      "id": "A",
+      "name": "Person A",
+      "skills": [
+        { "domain": "Backend", "skill": "Python", "usage": 70, "unlockedSubSkills": ["Core syntax"] }
+      ]
+    }
+  ]
+}
+```
+
+### Field meaning
+- `people[].id`: stable identifier used for selection state.
+- `people[].name`: label shown in the UI.
+- `people[].skills[]`: sparse list of skills this person has data for.
+  - `domain`: must match a domain in the taxonomy (e.g. `Backend`). If it doesn't exist, it will be added.
+  - `skill`: must match a skill name under that domain (e.g. `Python`). If it doesn't exist, it will be added.
+  - `usage`: number (recommended 0–100). Used for color intensity.
+  - `unlockedSubSkills`: list of sub-skill names that are unlocked for this person. Used to compute unlocked counts.
+
+### Missing skills
+If a person does not list a `(domain, skill)`, it is treated as:
+- `usage = 0`
+- `unlocked = 0`
+
+This means two people can have completely different skill sets (e.g. A has Python, B has Java) and the chart will still render both cells; selection will fade/strengthen them accordingly.
+
+## 🧪 Generate a large rich dataset
+
+If you want lots of people with dense skill coverage, you can generate a big `people.json` automatically:
+
+```bash
+node scripts/generate_people.mjs --count 200 --out people.json --seed 42
+```
+
+This generator:
+- Reads the taxonomy from `index.html` (so domain/skill/sub-skill names always match)
+- Generates sparse per-person records (missing skill = 0), but with many skills per person to feel “rich”
+
 ## 📦 Dependencies
 
 ```html
@@ -136,11 +184,14 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 ## 🚀 Quick Start
 
 1. Clone or download this repository
-2. Open `index.html` in a modern browser
-3. Wait 2-3 seconds for initial calculation
-4. Hover over skills to see unlocked sub-skills and usage frequency
-5. Click any skill to drill down into domain view
-6. Click empty space to return to overview
+2. Run a local static server (recommended so `people.json` can be loaded via `fetch`)
+   - Python: `python -m http.server 8000`
+   - Node: `npx serve .`
+3. Open the site in your browser (for example `http://localhost:8000/index.html`)
+4. Wait 2-3 seconds for initial calculation
+5. Hover over skills to see unlocked sub-skills and usage frequency
+6. Click any skill to drill down into domain view
+7. Click empty space to return to overview
 
 ## 🎨 Visualization Details
 

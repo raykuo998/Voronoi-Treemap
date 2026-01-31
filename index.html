@@ -63,6 +63,106 @@
             flex-wrap: wrap;
         }
 
+        .people-panel {
+            background: white;
+            padding: 16px 18px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .people-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .people-search {
+            flex: 1 1 240px;
+            max-width: 420px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .people-search input[type="text"] {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            outline: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .people-search input[type="text"]:focus {
+            border-color: rgba(102, 126, 234, 0.7);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: white;
+        }
+
+        .people-panel-title {
+            font-weight: 800;
+            color: #333;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+        }
+
+        .people-panel-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .people-panel-actions button {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .people-count {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .people-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px 16px;
+            max-height: 220px;
+            overflow: auto;
+            padding-right: 6px;
+        }
+
+        .people-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            background: rgba(102, 126, 234, 0.04);
+        }
+
+        .people-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .people-item label {
+            cursor: pointer;
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+            user-select: none;
+        }
+
         button {
             padding: 10px 20px;
             background: #667eea;
@@ -343,6 +443,21 @@
             <span class="method-badge">🎯 Skill Map: Competencies within Technical Domains</span>
         </div>
 
+        <div class="people-panel" id="peoplePanel">
+            <div class="people-panel-header">
+                <div class="people-panel-title">People filter</div>
+                <div class="people-search">
+                    <input type="text" id="peopleSearch" placeholder="Search people..." />
+                </div>
+                <div class="people-panel-actions">
+                    <span class="people-count" id="peopleCount"></span>
+                    <button type="button" id="selectAllPeopleBtn">Select all</button>
+                    <button type="button" class="back-btn" id="clearPeopleBtn">Clear</button>
+                </div>
+            </div>
+            <div class="people-list" id="peopleList"></div>
+        </div>
+
         <div class="controls" id="controls">
             <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
             <button id="resetBtn" onclick="reset()">⌂ Reset to Overview</button>
@@ -542,8 +657,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
     </script>
 
     <script>
-        // Programming skills data
-        const skillData = {
+        // Base taxonomy (skill names + sub-skill names).
+        // Multi-person mode loads per-person values from people.json.
+        const baseTaxonomy = {
             name: "Tech Skills",
             children: [
                 {
@@ -862,12 +978,31 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             ]
         };
 
+        const cloneObject = typeof structuredClone === 'function'
+            ? structuredClone
+            : (obj) => JSON.parse(JSON.stringify(obj));
+
         // Global variables
-        let currentData = skillData;
+        let taxonomyData = cloneObject(baseTaxonomy);
+        let currentData = taxonomyData;
         let history = [];
         const width = 1000;
         const height = 1000;
         const radius = Math.min(width, height) / 2 - 80;
+
+        // Multi-person state (method 2: fixed geometry, style updates only)
+        let peopleData = null;
+        let selectedPersonIds = new Set();
+        let peopleById = new Map(); // id -> person
+        let skillKeyToMeta = new Map(); // skillKey -> { domainName, skillName, subSkillNames:Set<string> }
+        let skillKeyToPerPerson = new Map(); // skillKey -> Map(personId -> { usage:number, unlockedCount:number })
+        let personIdToSkillMetrics = new Map(); // personId -> Map(skillKey -> { usage:number, unlockedCount:number })
+        let layoutWeightBySkillKey = new Map(); // skillKey -> number (team aggregate)
+        let layoutUnlockedSumBySkillKey = new Map(); // skillKey -> number
+        let usageTGlobal = () => 0.6; // (usage:number) -> t in [0,1]
+        const layoutCache = new Map(); // viewKey -> { root, leaves, domains, isWorldView }
+        let selectionAggBySkillKey = new Map(); // skillKey -> { usageSum, unlockedSum, unlockedPeopleCount }
+        let selectionAggSelectedCount = 0;
 
         // Domain color schemes
         const domainColorSchemes = {
@@ -876,6 +1011,10 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             'DevOps': d3.interpolateOranges,
             'Mobile': d3.interpolatePurples
         };
+
+        function makeSkillKey(domainName, skillName) {
+            return `${domainName}::${skillName}`;
+        }
 
         // Calculate polygon centroid
         function polygonCentroid(polygon) {
@@ -963,7 +1102,19 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 : () => 0.6;
         }
 
-        const usageTGlobal = createGlobalUsageIntensityScale(skillData);
+        function createGlobalUsageIntensityScaleFromValues(values) {
+            const numeric = (Array.isArray(values) ? values : [])
+                .map(v => Number(v))
+                .filter(v => Number.isFinite(v));
+            const extent = d3.extent(numeric);
+            const hasRange =
+                Number.isFinite(extent[0]) &&
+                Number.isFinite(extent[1]) &&
+                extent[0] !== extent[1];
+            return hasRange
+                ? d3.scaleLinear().domain(extent).range([0.15, 0.95]).clamp(true)
+                : () => 0.6;
+        }
 
         // Clip polygon to circle
         function clipPolygonToCircle(polygon, cx, cy, r) {
@@ -1021,6 +1172,426 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             return [p1[0] + t * dx, p1[1] + t * dy];
         }
 
+        function getDomainNodeByName(taxonomy, domainName) {
+            const domains = Array.isArray(taxonomy?.children) ? taxonomy.children : [];
+            return domains.find(d => d && d.name === domainName) || null;
+        }
+
+        function ensureDomainNode(taxonomy, domainName) {
+            if (!taxonomy) return null;
+            if (!Array.isArray(taxonomy.children)) taxonomy.children = [];
+            const existing = getDomainNodeByName(taxonomy, domainName);
+            if (existing) return existing;
+            const domainNode = { name: domainName, children: [] };
+            taxonomy.children.push(domainNode);
+            return domainNode;
+        }
+
+        function ensureSkillNode(domainNode, skillName) {
+            if (!domainNode) return null;
+            if (!Array.isArray(domainNode.children)) domainNode.children = [];
+            const existing = domainNode.children.find(s => s && s.name === skillName) || null;
+            if (existing) return existing;
+            const skillNode = { name: skillName, usage: 0, subSkills: [] };
+            domainNode.children.push(skillNode);
+            return skillNode;
+        }
+
+        function ensureSubSkillNames(skillNode, names) {
+            if (!skillNode) return;
+            if (!Array.isArray(skillNode.subSkills)) skillNode.subSkills = [];
+            const existing = new Set(skillNode.subSkills.map(s => s && s.name).filter(Boolean));
+            (Array.isArray(names) ? names : []).forEach(name => {
+                if (!name || existing.has(name)) return;
+                skillNode.subSkills.push({ name, unlocked: false });
+                existing.add(name);
+            });
+        }
+
+        function applyPeopleUnionToTaxonomy(taxonomy, people) {
+            const persons = Array.isArray(people) ? people : [];
+            persons.forEach(person => {
+                const skills = Array.isArray(person?.skills) ? person.skills : [];
+                skills.forEach(rec => {
+                    const domainName = String(rec?.domain || '').trim();
+                    const skillName = String(rec?.skill || '').trim();
+                    if (!domainName || !skillName) return;
+                    const domainNode = ensureDomainNode(taxonomy, domainName);
+                    const skillNode = ensureSkillNode(domainNode, skillName);
+                    ensureSubSkillNames(skillNode, rec?.unlockedSubSkills);
+                });
+            });
+        }
+
+        function annotateAndIndexTaxonomy(taxonomy) {
+            skillKeyToMeta = new Map();
+            const domains = Array.isArray(taxonomy?.children) ? taxonomy.children : [];
+            domains.forEach(domain => {
+                const domainName = domain?.name;
+                const skills = Array.isArray(domain?.children) ? domain.children : [];
+                skills.forEach(skill => {
+                    if (!skill || !domainName || !skill.name) return;
+                    skill.__domain = domainName;
+                    skill.__skillKey = makeSkillKey(domainName, skill.name);
+                    const subSkillNames = new Set(
+                        (Array.isArray(skill.subSkills) ? skill.subSkills : [])
+                            .map(s => s && s.name)
+                            .filter(Boolean)
+                    );
+                    skillKeyToMeta.set(skill.__skillKey, {
+                        domainName,
+                        skillName: skill.name,
+                        subSkillNames
+                    });
+                });
+            });
+        }
+
+        function buildPeopleMetrics(people) {
+            peopleById = new Map();
+            skillKeyToPerPerson = new Map();
+            personIdToSkillMetrics = new Map();
+            layoutUnlockedSumBySkillKey = new Map();
+            layoutWeightBySkillKey = new Map();
+
+            const persons = Array.isArray(people) ? people : [];
+            const usageValues = [];
+
+            persons.forEach(person => {
+                const id = String(person?.id || '').trim();
+                if (!id) return;
+                peopleById.set(id, person);
+                personIdToSkillMetrics.set(id, new Map());
+                const skills = Array.isArray(person?.skills) ? person.skills : [];
+                skills.forEach(rec => {
+                    const domainName = String(rec?.domain || '').trim();
+                    const skillName = String(rec?.skill || '').trim();
+                    if (!domainName || !skillName) return;
+                    const skillKey = makeSkillKey(domainName, skillName);
+                    const usage = Number(rec?.usage);
+                    const usageValue = Number.isFinite(usage) ? usage : 0;
+                    const unlockedNames = Array.isArray(rec?.unlockedSubSkills) ? rec.unlockedSubSkills : [];
+
+                    const meta = skillKeyToMeta.get(skillKey);
+                    let unlockedCount = 0;
+                    if (meta && meta.subSkillNames && meta.subSkillNames.size > 0) {
+                        const seen = new Set();
+                        unlockedNames.forEach(n => {
+                            const name = String(n || '').trim();
+                            if (!name || seen.has(name)) return;
+                            if (meta.subSkillNames.has(name)) {
+                                unlockedCount += 1;
+                                seen.add(name);
+                            }
+                        });
+                    } else {
+                        unlockedCount = unlockedNames.length;
+                    }
+
+                    if (!skillKeyToPerPerson.has(skillKey)) skillKeyToPerPerson.set(skillKey, new Map());
+                    skillKeyToPerPerson.get(skillKey).set(id, { usage: usageValue, unlockedCount });
+                    personIdToSkillMetrics.get(id).set(skillKey, { usage: usageValue, unlockedCount });
+                    usageValues.push(usageValue);
+                });
+            });
+
+            // Team-aggregate layout weights: sum of unlocked counts across all people.
+            for (const skillKey of skillKeyToMeta.keys()) {
+                const perPerson = skillKeyToPerPerson.get(skillKey);
+                let sumUnlocked = 0;
+                if (perPerson) {
+                    for (const v of perPerson.values()) sumUnlocked += Number(v?.unlockedCount) || 0;
+                }
+                layoutUnlockedSumBySkillKey.set(skillKey, sumUnlocked);
+                layoutWeightBySkillKey.set(skillKey, Math.max(0.001, sumUnlocked));
+            }
+
+            // Global intensity scale across all people.
+            usageTGlobal = createGlobalUsageIntensityScaleFromValues([0, ...usageValues]);
+
+            // Layout depends on weights; invalidate cache after recomputing.
+            layoutCache.clear();
+        }
+
+        function updatePeopleCountLabel() {
+            const el = document.getElementById('peopleCount');
+            if (!el) return;
+            const total = Array.isArray(peopleData?.people) ? peopleData.people.length : 0;
+            const selected = selectedPersonIds?.size || 0;
+            el.textContent = total > 0 ? `Selected: ${selected} / ${total}` : '';
+        }
+
+        function isPeopleModeEnabled() {
+            return Array.isArray(peopleData?.people) && peopleData.people.length > 0;
+        }
+
+        function recomputeSelectionAggregates() {
+            selectionAggSelectedCount = selectedPersonIds?.size || 0;
+            selectionAggBySkillKey = new Map();
+            if (!isPeopleModeEnabled()) return;
+
+            // Only add non-zero contributions (missing skills implicitly contribute 0)
+            for (const personId of selectedPersonIds) {
+                const perSkill = personIdToSkillMetrics.get(personId);
+                if (!perSkill) continue;
+                for (const [skillKey, metric] of perSkill.entries()) {
+                    const usage = Number(metric?.usage) || 0;
+                    const unlocked = Number(metric?.unlockedCount) || 0;
+                    if (usage === 0 && unlocked === 0) continue;
+
+                    let agg = selectionAggBySkillKey.get(skillKey);
+                    if (!agg) {
+                        agg = { usageSum: 0, unlockedSum: 0, unlockedPeopleCount: 0 };
+                        selectionAggBySkillKey.set(skillKey, agg);
+                    }
+
+                    agg.usageSum += usage;
+                    agg.unlockedSum += unlocked;
+                    if (unlocked > 0) agg.unlockedPeopleCount += 1;
+                }
+            }
+        }
+
+        function getSelectionMetricsForSkillKey(skillKey) {
+            const selectedCount = selectionAggSelectedCount;
+            const agg = selectionAggBySkillKey.get(skillKey) || { usageSum: 0, unlockedSum: 0, unlockedPeopleCount: 0 };
+
+            if (selectedCount === 0) {
+                return {
+                    selectedCount: 0,
+                    unlockedPeopleCount: 0,
+                    unlockedPeopleRatio: 0,
+                    usageAvg: 0,
+                    unlockedSum: 0
+                };
+            }
+
+            return {
+                selectedCount,
+                unlockedPeopleCount: agg.unlockedPeopleCount,
+                unlockedPeopleRatio: agg.unlockedPeopleCount / selectedCount,
+                usageAvg: agg.usageSum / selectedCount,
+                unlockedSum: agg.unlockedSum
+            };
+        }
+
+        function applySelectionToCurrentView() {
+            const svg = d3.select('#chart');
+            const cells = svg.selectAll('.skill-cell');
+            if (cells.empty()) return;
+
+            if (!isPeopleModeEnabled()) {
+                // Single-taxonomy fallback: color/opacity from built-in values.
+                cells
+                    .attr('fill', d => {
+                        const domainName = d?.data?.__domain || (d?.parent ? d.parent.data.name : 'Unknown');
+                        const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
+                        return colorScheme(usageTGlobal(getUsageValue(d?.data)));
+                    })
+                    .attr('opacity', 0.9)
+                    .attr('stroke-width', 1.5);
+                return;
+            }
+
+            recomputeSelectionAggregates();
+
+            cells
+                .attr('fill', d => {
+                    const domainName = d?.data?.__domain || (d?.parent ? d.parent.data.name : 'Unknown');
+                    const skillKey = d?.data?.__skillKey || makeSkillKey(domainName, d?.data?.name || '');
+                    const metrics = getSelectionMetricsForSkillKey(skillKey);
+                    const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
+                    return colorScheme(usageTGlobal(metrics.usageAvg));
+                })
+                .attr('opacity', d => {
+                    const domainName = d?.data?.__domain || (d?.parent ? d.parent.data.name : 'Unknown');
+                    const skillKey = d?.data?.__skillKey || makeSkillKey(domainName, d?.data?.name || '');
+                    const metrics = getSelectionMetricsForSkillKey(skillKey);
+                    if (metrics.selectedCount === 0) return 0.15;
+                    return 0.15 + 0.85 * metrics.unlockedPeopleRatio;
+                })
+                .attr('stroke-width', d => {
+                    const domainName = d?.data?.__domain || (d?.parent ? d.parent.data.name : 'Unknown');
+                    const skillKey = d?.data?.__skillKey || makeSkillKey(domainName, d?.data?.name || '');
+                    const metrics = getSelectionMetricsForSkillKey(skillKey);
+                    if (metrics.selectedCount === 0) return 1.5;
+                    return 1.2 + 1.8 * metrics.unlockedPeopleRatio;
+                });
+        }
+
+        function initPeopleUI(people) {
+            const panel = document.getElementById('peoplePanel');
+            const list = document.getElementById('peopleList');
+            const selectAllBtn = document.getElementById('selectAllPeopleBtn');
+            const clearBtn = document.getElementById('clearPeopleBtn');
+            const searchInput = document.getElementById('peopleSearch');
+
+            if (!panel || !list || !selectAllBtn || !clearBtn) return;
+
+            const persons = Array.isArray(people) ? people : [];
+            if (persons.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'block';
+            list.innerHTML = '';
+            if (searchInput) searchInput.value = '';
+
+            // Default: all selected
+            selectedPersonIds = new Set(persons.map(p => String(p?.id || '').trim()).filter(Boolean));
+            updatePeopleCountLabel();
+
+            persons.forEach(person => {
+                const personId = String(person?.id || '').trim();
+                if (!personId) return;
+                const checkboxId = `person-${personId}`;
+                const item = document.createElement('div');
+                item.className = 'people-item';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = checkboxId;
+                checkbox.checked = true;
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) selectedPersonIds.add(personId);
+                    else selectedPersonIds.delete(personId);
+                    updatePeopleCountLabel();
+                    applySelectionToCurrentView();
+                });
+
+                const label = document.createElement('label');
+                label.setAttribute('for', checkboxId);
+                label.textContent = person?.name ? String(person.name) : personId;
+
+                item.appendChild(checkbox);
+                item.appendChild(label);
+                list.appendChild(item);
+            });
+
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    const q = String(searchInput.value || '').trim().toLowerCase();
+                    list.querySelectorAll('.people-item').forEach(item => {
+                        const txt = (item.textContent || '').toLowerCase();
+                        item.style.display = q === '' || txt.includes(q) ? '' : 'none';
+                    });
+                });
+            }
+
+            selectAllBtn.addEventListener('click', () => {
+                selectedPersonIds = new Set(persons.map(p => String(p?.id || '').trim()).filter(Boolean));
+                list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+                updatePeopleCountLabel();
+                applySelectionToCurrentView();
+            });
+
+            clearBtn.addEventListener('click', () => {
+                selectedPersonIds = new Set();
+                list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                updatePeopleCountLabel();
+                applySelectionToCurrentView();
+            });
+        }
+
+        async function initApp() {
+            taxonomyData = cloneObject(baseTaxonomy);
+            currentData = taxonomyData;
+            history = [];
+
+            // Try multi-person mode first
+            try {
+                const resp = await fetch('./people.json', { cache: 'no-store' });
+                if (!resp.ok) throw new Error(`Failed to load people.json (${resp.status})`);
+                peopleData = await resp.json();
+                const persons = Array.isArray(peopleData?.people) ? peopleData.people : [];
+
+                applyPeopleUnionToTaxonomy(taxonomyData, persons);
+                annotateAndIndexTaxonomy(taxonomyData);
+                buildPeopleMetrics(persons);
+                initPeopleUI(persons);
+            } catch (err) {
+                // Fallback to single-taxonomy mode if people.json can't be loaded
+                console.warn('Multi-person mode disabled:', err);
+                peopleData = null;
+                selectedPersonIds = new Set();
+                const panel = document.getElementById('peoplePanel');
+                if (panel) panel.style.display = 'none';
+
+                annotateAndIndexTaxonomy(taxonomyData);
+
+                // Use the built-in unlocked/usage values for layout + coloring
+                const usageValues = [];
+                for (const meta of skillKeyToMeta.values()) {
+                    usageValues.push(0);
+                }
+                usageTGlobal = createGlobalUsageIntensityScale(taxonomyData);
+                layoutWeightBySkillKey = new Map();
+                layoutUnlockedSumBySkillKey = new Map();
+
+                // Derive weights from the taxonomy's unlocked sub-skills
+                const domains = Array.isArray(taxonomyData?.children) ? taxonomyData.children : [];
+                domains.forEach(domain => {
+                    const domainName = domain?.name;
+                    const skills = Array.isArray(domain?.children) ? domain.children : [];
+                    skills.forEach(skill => {
+                        if (!domainName || !skill?.name) return;
+                        const key = makeSkillKey(domainName, skill.name);
+                        const { unlocked } = getSubSkillCounts(skill);
+                        layoutUnlockedSumBySkillKey.set(key, unlocked);
+                        layoutWeightBySkillKey.set(key, Math.max(0.001, unlocked));
+                    });
+                });
+                layoutCache.clear();
+            }
+
+            renderChart(currentData);
+        }
+
+        function getViewKey(data) {
+            const rootName = taxonomyData?.name || 'Tech Skills';
+            if (!data || !data.name) return 'overview';
+            return data.name === rootName ? 'overview' : `domain::${data.name}`;
+        }
+
+        function getOrComputeLayout(data) {
+            const key = getViewKey(data);
+            if (layoutCache.has(key)) return layoutCache.get(key);
+            if (typeof d3.voronoiTreemap === 'undefined') return null;
+
+            const circlePolygon = createCirclePolygon(radius, 64);
+
+            const root = d3.hierarchy(data)
+                .sum(d => {
+                    if (d && Array.isArray(d.children)) return 0;
+                    const domainName = d?.__domain || '';
+                    const skillKey = d?.__skillKey || makeSkillKey(domainName, d?.name || '');
+                    const w = layoutWeightBySkillKey.get(skillKey);
+                    if (Number.isFinite(w)) return w;
+                    return Math.max(0.001, getSubSkillCounts(d).unlocked);
+                })
+                .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+            const voronoiTreemap = d3.voronoiTreemap()
+                .clip(circlePolygon)
+                .convergenceRatio(0.001)
+                .maxIterationCount(100)
+                .minWeightRatio(0.001);
+
+            voronoiTreemap(root);
+
+            const layout = {
+                key,
+                root,
+                isWorldView: key === 'overview',
+                leaves: root.leaves(),
+                domains: root.children || []
+            };
+
+            layoutCache.set(key, layout);
+            return layout;
+        }
+
         function renderChart(data) {
             d3.select('#chart').selectAll('*').remove();
 
@@ -1031,17 +1602,10 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const centerX = width / 2;
             const centerY = height / 2;
 
-            // Create hierarchical data
-            const root = d3.hierarchy(data)
-                .sum(d => {
-                    // Internal nodes should not contribute extra weight; only leaves do.
-                    if (d && Array.isArray(d.children)) return 0;
-                    // Note: voronoi-treemap expects positive weights; keep 0-unlocked skills barely visible.
-                    return Math.max(0.001, getSubSkillCounts(d).unlocked);
-                })
-                .sort((a, b) => (b.value || 0) - (a.value || 0));
-
-            const isWorldView = data.name === "Tech Skills";
+            const viewKey = getViewKey(data);
+            const isWorldView = viewKey === 'overview';
+            const layout = (typeof d3.voronoiTreemap !== 'undefined') ? getOrComputeLayout(data) : null;
+            const root = layout?.root || null;
 
             // Draw outer circle border
             svg.append('circle')
@@ -1065,25 +1629,11 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 .attr('transform', `translate(${centerX},${centerY})`)
                 .attr('clip-path', 'url(#circle-clip)');
 
-            if (isWorldView && typeof d3.voronoiTreemap !== 'undefined') {
+            if (isWorldView && layout) {
                 // ========== Use d3-voronoi-treemap for weighted nested Voronoi ==========
 
-                // Create circular clipping polygon
-                const circlePolygon = createCirclePolygon(radius, 64);
-
-                // Use d3-voronoi-treemap for weighted hierarchy
-                const voronoiTreemap = d3.voronoiTreemap()
-                    .clip(circlePolygon)
-                    .convergenceRatio(0.001)
-                    .maxIterationCount(100)
-                    .minWeightRatio(0.001);
-
-                // Calculate voronoi treemap
-                voronoiTreemap(root);
-
-                // Collect all countries (leaf nodes)
-                const allCountries = root.leaves();
-                const continents = root.children || [];
+                const allCountries = layout.leaves;
+                const continents = layout.domains;
 
                 // Draw skill cells
                 g.selectAll('.skill-cell')
@@ -1091,11 +1641,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .join('path')
                     .attr('class', 'skill-cell')
                     .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
-                    .attr('fill', d => {
-                        const domainName = d.parent ? d.parent.data.name : 'Unknown';
-                        const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
-                        return colorScheme(usageTGlobal(getUsageValue(d.data))); // usage-driven intensity (global scale)
-                    })
+                    .attr('fill', '#ddd')
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 1.5)
                     .attr('opacity', 0.9)
@@ -1108,19 +1654,39 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         const tooltip = document.getElementById('tooltip');
                         tooltip.style.display = 'block';
 
-                        const totalValue = root.value || 1;
+                        const totalValue = root?.value || 1;
                         const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
                         const domainName = d.parent ? d.parent.data.name : '';
-                        const { unlocked, total } = getSubSkillCounts(d.data);
-                        const usage = getUsageValue(d.data);
+                        const skillKey = d?.data?.__skillKey || makeSkillKey(domainName, d?.data?.name || '');
 
-                        tooltip.innerHTML = `
-                            <strong>${d.data.name} (${domainName})</strong>
-                            <div>Unlocked sub-skills: ${unlocked}/${total}</div>
-                            <div>Usage frequency: ${usage}</div>
-                            <div>% of Total (unlocked): ${percentage}%</div>
-                            <div style="margin-top: 4px; font-style: italic;">Click to view ${domainName} skills →</div>
-                        `;
+                        if (isPeopleModeEnabled()) {
+                            const teamUnlocked = layoutUnlockedSumBySkillKey.get(skillKey) ?? 0;
+                            const metrics = getSelectionMetricsForSkillKey(skillKey);
+                            const usageAvg = Math.round(metrics.usageAvg);
+                            const ratioPct = Math.round(metrics.unlockedPeopleRatio * 100);
+                            const selectedLine = metrics.selectedCount > 0
+                                ? `Selected: ${metrics.selectedCount} • Have skill: ${metrics.unlockedPeopleCount}/${metrics.selectedCount} (${ratioPct}%)`
+                                : 'Selected: 0 (no people selected)';
+
+                            tooltip.innerHTML = `
+                                <strong>${d.data.name} (${domainName})</strong>
+                                <div>Team unlocked (sum): ${teamUnlocked}</div>
+                                <div>${selectedLine}</div>
+                                <div>Avg usage (selected): ${usageAvg}</div>
+                                <div>% of Team (layout weight): ${percentage}%</div>
+                                <div style="margin-top: 4px; font-style: italic;">Missing skills count as 0 • Click to view ${domainName} →</div>
+                            `;
+                        } else {
+                            const { unlocked, total } = getSubSkillCounts(d.data);
+                            const usage = getUsageValue(d.data);
+                            tooltip.innerHTML = `
+                                <strong>${d.data.name} (${domainName})</strong>
+                                <div>Unlocked sub-skills: ${unlocked}/${total}</div>
+                                <div>Usage frequency: ${usage}</div>
+                                <div>% of Total (unlocked): ${percentage}%</div>
+                                <div style="margin-top: 4px; font-style: italic;">Click to view ${domainName} skills →</div>
+                            `;
+                        }
 
                         positionTooltip(event, tooltip);
                     })
@@ -1131,11 +1697,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         }
                     })
                     .on('mouseout', function () {
-                        d3.select(this)
-                            .attr('opacity', 0.9)
-                            .attr('stroke-width', 1.5);
                         const tooltip = document.getElementById('tooltip');
                         tooltip.style.display = 'none';
+                        applySelectionToCurrentView();
                     })
                     .on('click', function (event, d) {
                         event.stopPropagation();
@@ -1189,21 +1753,11 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                     .attr('text-anchor', 'middle')
                     .attr('fill', '#666')
                     .attr('font-size', '14px')
-                    .text('⚠️ d3-voronoi-treemap library failed to load');
+                    .text('⚠️ d3-voronoi-treemap layout is unavailable');
             } else {
                 // ========== Domain view: only show skills in that domain ==========
-                if (typeof d3.voronoiTreemap !== 'undefined') {
-                    // Weighted voronoi (area follows unlocked count) within the same circle boundary
-                    const circlePolygon = createCirclePolygon(radius, 64);
-                    const voronoiTreemap = d3.voronoiTreemap()
-                        .clip(circlePolygon)
-                        .convergenceRatio(0.001)
-                        .maxIterationCount(100)
-                        .minWeightRatio(0.001);
-
-                    voronoiTreemap(root);
-
-                    const skills = root.leaves();
+                if (layout) {
+                    const skills = layout.leaves;
                     const colorScheme = domainColorSchemes[data.name] || d3.interpolateRainbow;
 
                     g.selectAll('.skill-cell')
@@ -1211,7 +1765,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         .join('path')
                         .attr('class', 'skill-cell')
                         .attr('d', d => d.polygon ? "M" + d.polygon.join("L") + "Z" : null)
-                        .attr('fill', d => colorScheme(usageTGlobal(getUsageValue(d.data))))
+                        .attr('fill', '#ddd')
                         .attr('stroke', '#fff')
                         .attr('stroke-width', 2)
                         .attr('opacity', 0.9)
@@ -1228,16 +1782,37 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                             const tooltip = document.getElementById('tooltip');
                             tooltip.style.display = 'block';
 
-                            const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
-                            const { unlocked, total } = getSubSkillCounts(d.data);
-                            const usage = getUsageValue(d.data);
+                            const percentage = ((d.value || 0) / (root?.value || 1) * 100).toFixed(1);
+                            const domainName = data?.name || '';
+                            const skillKey = d?.data?.__skillKey || makeSkillKey(domainName, d?.data?.name || '');
 
-                            tooltip.innerHTML = `
-                                <strong>${d.data.name}</strong>
-                                <div>Unlocked sub-skills: ${unlocked}/${total}</div>
-                                <div>Usage frequency: ${usage}</div>
-                                <div>% of ${data.name} (unlocked): ${percentage}%</div>
-                            `;
+                            if (isPeopleModeEnabled()) {
+                                const teamUnlocked = layoutUnlockedSumBySkillKey.get(skillKey) ?? 0;
+                                const metrics = getSelectionMetricsForSkillKey(skillKey);
+                                const usageAvg = Math.round(metrics.usageAvg);
+                                const ratioPct = Math.round(metrics.unlockedPeopleRatio * 100);
+                                const selectedLine = metrics.selectedCount > 0
+                                    ? `Selected: ${metrics.selectedCount} • Have skill: ${metrics.unlockedPeopleCount}/${metrics.selectedCount} (${ratioPct}%)`
+                                    : 'Selected: 0 (no people selected)';
+
+                                tooltip.innerHTML = `
+                                    <strong>${d.data.name}</strong>
+                                    <div>Team unlocked (sum): ${teamUnlocked}</div>
+                                    <div>${selectedLine}</div>
+                                    <div>Avg usage (selected): ${usageAvg}</div>
+                                    <div>% of ${domainName} (layout weight): ${percentage}%</div>
+                                    <div style="margin-top: 4px; font-style: italic;">Missing skills count as 0</div>
+                                `;
+                            } else {
+                                const { unlocked, total } = getSubSkillCounts(d.data);
+                                const usage = getUsageValue(d.data);
+                                tooltip.innerHTML = `
+                                    <strong>${d.data.name}</strong>
+                                    <div>Unlocked sub-skills: ${unlocked}/${total}</div>
+                                    <div>Usage frequency: ${usage}</div>
+                                    <div>% of ${domainName} (unlocked): ${percentage}%</div>
+                                `;
+                            }
 
                             positionTooltip(event, tooltip);
                         })
@@ -1248,11 +1823,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                             }
                         })
                         .on('mouseout', function () {
-                            d3.select(this)
-                                .attr('opacity', 0.9)
-                                .attr('stroke-width', 2);
                             const tooltip = document.getElementById('tooltip');
                             tooltip.style.display = 'none';
+                            applySelectionToCurrentView();
                         });
 
                     g.selectAll('.skill-label')
@@ -1282,12 +1855,19 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                         });
                 } else {
                     // Fallback: pack + delaunay (not strictly area-proportional)
-                    const countries = root.children || [];
+                    const fallbackRoot = d3.hierarchy(data)
+                        .sum(d => {
+                            if (d && Array.isArray(d.children)) return 0;
+                            return Math.max(0.001, getSubSkillCounts(d).unlocked);
+                        })
+                        .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+                    const countries = fallbackRoot.children || [];
 
                     const pack = d3.pack()
                         .size([radius * 2, radius * 2])
                         .padding(3);
-                    pack(root);
+                    pack(fallbackRoot);
 
                     const sites = countries.map(d => [d.x - radius, d.y - radius]);
                     const voronoi = d3.Delaunay.from(sites).voronoi([-radius, -radius, radius, radius]);
@@ -1314,7 +1894,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                             const tooltip = document.getElementById('tooltip');
                             tooltip.style.display = 'block';
 
-                            const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
+                            const percentage = ((d.value || 0) / (fallbackRoot.value || 1) * 100).toFixed(1);
                             const { unlocked, total } = getSubSkillCounts(d.data);
                             const usage = getUsageValue(d.data);
 
@@ -1403,6 +1983,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                 if (history.length > 0) goBack();
             });
 
+            // Apply selection-driven styling (method 2)
+            applySelectionToCurrentView();
+
             updateControls();
         }
 
@@ -1474,7 +2057,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
         }
 
         function reset() {
-            currentData = skillData;
+            currentData = taxonomyData;
             history = [];
             renderChart(currentData);
         }
@@ -1485,9 +2068,9 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             const mainTitle = document.getElementById('mainTitle');
             const subtitle = document.getElementById('subtitle');
 
-            if (currentData !== skillData || history.length > 0) {
+            if (currentData !== taxonomyData || history.length > 0) {
                 controls.style.display = 'flex';
-                breadcrumb.textContent = currentData !== skillData ? `Current: ${currentData.name}` : '';
+                breadcrumb.textContent = currentData !== taxonomyData ? `Current: ${currentData.name}` : '';
 
                 if (currentData.name !== "Tech Skills") {
                     mainTitle.textContent = `${getFlagEmoji(currentData.name)} ${currentData.name} Skills`;
@@ -1513,7 +2096,7 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             return emojiMap[domainName] || '💻';
         }
 
-        renderChart(currentData);
+        initApp();
     </script>
 </body>
 
