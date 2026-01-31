@@ -902,6 +902,35 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
             return Number.isFinite(usage) ? usage : 0;
         }
 
+        function positionTooltip(event, tooltip) {
+            if (!tooltip) return;
+            const offset = 12;
+            const pad = 8;
+
+            // Tooltip is position: fixed => use viewport coords (clientX/Y)
+            const clientX = Number(event?.clientX);
+            const clientY = Number(event?.clientY);
+            const x0 = Number.isFinite(clientX) ? clientX : 0;
+            const y0 = Number.isFinite(clientY) ? clientY : 0;
+
+            // Ensure tooltip has dimensions (content already set by caller)
+            const rect = tooltip.getBoundingClientRect();
+
+            let x = x0 + offset;
+            let y = y0 + offset;
+
+            // Flip to left/top side if overflowing
+            if (x + rect.width + pad > window.innerWidth) x = x0 - rect.width - offset;
+            if (y + rect.height + pad > window.innerHeight) y = y0 - rect.height - offset;
+
+            // Clamp within viewport
+            x = Math.max(pad, Math.min(window.innerWidth - rect.width - pad, x));
+            y = Math.max(pad, Math.min(window.innerHeight - rect.height - pad, y));
+
+            tooltip.style.left = Math.round(x) + 'px';
+            tooltip.style.top = Math.round(y) + 'px';
+        }
+
         function createCirclePolygon(r, points = 64) {
             const circlePolygon = [];
             for (let i = 0; i < points; i++) {
@@ -1078,8 +1107,6 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
                         const tooltip = document.getElementById('tooltip');
                         tooltip.style.display = 'block';
-                        tooltip.style.left = event.pageX + 10 + 'px';
-                        tooltip.style.top = event.pageY + 10 + 'px';
 
                         const totalValue = root.value || 1;
                         const percentage = ((d.value || 0) / totalValue * 100).toFixed(1);
@@ -1094,12 +1121,21 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                             <div>% of Total (unlocked): ${percentage}%</div>
                             <div style="margin-top: 4px; font-style: italic;">Click to view ${domainName} skills →</div>
                         `;
+
+                        positionTooltip(event, tooltip);
+                    })
+                    .on('mousemove', function (event, d) {
+                        const tooltip = document.getElementById('tooltip');
+                        if (tooltip?.style?.display === 'block') {
+                            positionTooltip(event, tooltip);
+                        }
                     })
                     .on('mouseout', function () {
                         d3.select(this)
                             .attr('opacity', 0.9)
                             .attr('stroke-width', 1.5);
-                        document.getElementById('tooltip').style.display = 'none';
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'none';
                     })
                     .on('click', function (event, d) {
                         event.stopPropagation();
@@ -1191,8 +1227,6 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
                             const tooltip = document.getElementById('tooltip');
                             tooltip.style.display = 'block';
-                            tooltip.style.left = event.pageX + 10 + 'px';
-                            tooltip.style.top = event.pageY + 10 + 'px';
 
                             const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
                             const { unlocked, total } = getSubSkillCounts(d.data);
@@ -1204,12 +1238,21 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                                 <div>Usage frequency: ${usage}</div>
                                 <div>% of ${data.name} (unlocked): ${percentage}%</div>
                             `;
+
+                            positionTooltip(event, tooltip);
+                        })
+                        .on('mousemove', function (event, d) {
+                            const tooltip = document.getElementById('tooltip');
+                            if (tooltip?.style?.display === 'block') {
+                                positionTooltip(event, tooltip);
+                            }
                         })
                         .on('mouseout', function () {
                             d3.select(this)
                                 .attr('opacity', 0.9)
                                 .attr('stroke-width', 2);
-                            document.getElementById('tooltip').style.display = 'none';
+                            const tooltip = document.getElementById('tooltip');
+                            tooltip.style.display = 'none';
                         });
 
                     g.selectAll('.skill-label')
@@ -1270,8 +1313,6 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
 
                             const tooltip = document.getElementById('tooltip');
                             tooltip.style.display = 'block';
-                            tooltip.style.left = event.pageX + 10 + 'px';
-                            tooltip.style.top = event.pageY + 10 + 'px';
 
                             const percentage = ((d.value || 0) / (root.value || 1) * 100).toFixed(1);
                             const { unlocked, total } = getSubSkillCounts(d.data);
@@ -1283,12 +1324,21 @@ voronoiTreemap(root);                 // Calculates BOTH levels simultaneously
                                 <div>Usage frequency: ${usage}</div>
                                 <div>% of ${data.name} (unlocked): ${percentage}%</div>
                             `;
+
+                            positionTooltip(event, tooltip);
+                        })
+                        .on('mousemove', function (event, d) {
+                            const tooltip = document.getElementById('tooltip');
+                            if (tooltip?.style?.display === 'block') {
+                                positionTooltip(event, tooltip);
+                            }
                         })
                         .on('mouseout', function () {
                             d3.select(this)
                                 .attr('opacity', 0.9)
                                 .attr('stroke-width', 2);
-                            document.getElementById('tooltip').style.display = 'none';
+                            const tooltip = document.getElementById('tooltip');
+                            tooltip.style.display = 'none';
                         });
 
                     g.selectAll('text')
