@@ -132,35 +132,272 @@
         }
 
         .people-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 10px 16px;
-            max-height: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 360px;
             overflow: auto;
             padding-right: 6px;
         }
 
-        .people-item {
+        .person-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
+            gap: 12px;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #fff;
+            transition: background 150ms ease;
+        }
+
+        .person-item:hover {
+            background: rgba(102, 126, 234, 0.06);
+        }
+
+        .person-checkbox {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+            cursor: pointer;
+        }
+
+        .person-avatar,
+        .person-avatar-fallback {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            flex: 0 0 auto;
+        }
+
+        .person-avatar {
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.05);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+        }
+
+        .person-avatar-fallback {
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: rgba(0, 0, 0, 0.65);
+            background: rgba(102, 126, 234, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .person-name {
+            min-width: 0;
+            flex: 1 1 auto;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .person-details-btn {
+            flex: 0 0 auto;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(102, 126, 234, 0.08);
+            color: #3344aa;
+            cursor: pointer;
+        }
+
+        .person-details-btn:hover {
+            background: rgba(102, 126, 234, 0.14);
+        }
+
+        body.people-details-open {
+            overflow: hidden;
+        }
+
+        .people-details-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.38);
+            display: none;
+            align-items: stretch;
+            justify-content: flex-end;
+            z-index: 1000;
+        }
+
+        .people-details-backdrop[data-open="1"] {
+            display: flex;
+        }
+
+        .people-details-drawer {
+            width: min(560px, 94vw);
+            height: 100%;
+            background: #fff;
+            box-shadow: -12px 0 30px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .people-details-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .people-details-title {
+            font-weight: 900;
+            color: #333;
+            font-size: 14px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .people-details-close {
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            color: #444;
+        }
+
+        .people-details-close:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        .people-details-body {
+            padding: 14px 16px;
+            overflow: auto;
+        }
+
+        .person-section {
+            display: grid;
+            gap: 8px;
+        }
+
+        .person-section + .person-section {
+            margin-top: 14px;
+        }
+
+        .person-section-title {
+            color: #667eea;
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .person-skill-list,
+        .person-reco-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .person-skill-row,
+        .person-reco-row {
+            padding: 10px 10px;
             border-radius: 10px;
             border: 1px solid rgba(0, 0, 0, 0.06);
             background: rgba(102, 126, 234, 0.04);
         }
 
-        .people-item input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+        .person-skill-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto;
+            gap: 6px 12px;
         }
 
-        .people-item label {
-            cursor: pointer;
+        .person-reco-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 8px;
+        }
+
+        .person-reco-bar {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .person-reco-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.35), rgba(102, 126, 234, 0.95));
+        }
+
+        .person-reco-reason {
+            white-space: pre-line;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+            color: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            padding: 10px 10px;
+        }
+
+        .person-skill-main {
+            min-width: 0;
+        }
+
+        .person-skill-name,
+        .person-reco-name {
+            font-weight: 900;
             color: #333;
             font-size: 13px;
-            font-weight: 600;
-            user-select: none;
+            line-height: 1.2;
+        }
+
+        .person-skill-sub,
+        .person-reco-sub {
+            margin-top: 2px;
+            color: rgba(0, 0, 0, 0.55);
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .person-skill-stat {
+            font-variant-numeric: tabular-nums;
+            font-weight: 900;
+            color: #333;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .person-skill-bar {
+            grid-column: 1 / -1;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .person-skill-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.35), rgba(102, 126, 234, 0.95));
+        }
+
+        .person-empty {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+            padding: 2px 2px;
         }
 
         button {
@@ -208,6 +445,82 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+        }
+
+        .toplists {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toplist-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 14px 16px;
+        }
+
+        .toplist-title {
+            text-align: center;
+            color: #667eea;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .toplist-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            display: grid;
+            gap: 8px;
+        }
+
+        .toplist-item {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .toplist-skill {
+            font-weight: 800;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .toplist-domain {
+            display: block;
+            margin-top: 2px;
+            color: rgba(0, 0, 0, 0.55);
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .toplist-stat {
+            font-variant-numeric: tabular-nums;
+            color: #333;
+            font-weight: 800;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .toplist-empty {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: center;
+            padding: 10px 6px;
         }
 
         .tooltip {
@@ -233,6 +546,133 @@
             color: #fff;
         }
 
+        /* Legend (copied from index.html, positioned bottom-right) */
+        .legend-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 14px 16px;
+            margin-top: 12px;
+        }
+
+        .legend-card.legend-floating {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            margin-top: 0;
+            z-index: 5;
+            max-width: min(520px, calc(100% - 32px));
+            pointer-events: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .legend-title {
+            text-align: center;
+            color: #667eea;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* For floating legend: stack items and align right */
+        .legend-card.legend-floating .legend-row {
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: nowrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 260px;
+        }
+
+        .legend-card.legend-floating .legend-item {
+            min-width: 0;
+            justify-content: flex-end;
+        }
+
+        .legend-text {
+            text-align: right;
+        }
+
+        .legend-divider {
+            width: 1px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .legend-icon-size {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            border-radius: 999px;
+            background: #667eea;
+            opacity: 0.75;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-dot.dot-sm {
+            width: 10px;
+            height: 10px;
+        }
+
+        .legend-dot.dot-lg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .legend-icon-gradient {
+            width: 96px;
+            height: 14px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.18), rgba(102, 126, 234, 0.95));
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .legend-label {
+            font-weight: 800;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.1;
+        }
+
+        .legend-desc {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.35;
+            margin-top: 2px;
+        }
+
+        .legend-sub {
+            text-align: center;
+            color: rgba(0, 0, 0, 0.55);
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8rem;
@@ -243,8 +683,26 @@
                 align-items: stretch;
             }
 
+            .toplists {
+                grid-template-columns: 1fr;
+            }
+
             button {
                 width: 100%;
+            }
+
+            .legend-card.legend-floating {
+                right: 12px;
+                bottom: 12px;
+                max-width: calc(100% - 24px);
+            }
+
+            .legend-item {
+                min-width: 220px;
+            }
+
+            .legend-card.legend-floating .legend-item {
+                min-width: 0;
             }
         }
     </style>
@@ -258,9 +716,53 @@
             <span class="method-badge">Method 1 (Dynamic): area = sum of selected unlocked sub-skills</span>
         </div>
 
+        <div class="controls" id="controls">
+            <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+            <button id="resetBtn" onclick="reset()">⌂ Reset to Overview</button>
+            <span class="breadcrumb" id="breadcrumb"></span>
+        </div>
+
+        <div class="chart-container">
+            <svg id="chart"></svg>
+            <div class="legend-card legend-floating" aria-label="Legend">
+                <div class="legend-row">
+                    <div class="legend-item">
+                        <div class="legend-icon-size" aria-hidden="true">
+                            <span class="legend-dot dot-sm"></span>
+                            <span class="legend-dot dot-lg"></span>
+                        </div>
+                        <div class="legend-text">
+                            <div class="legend-label">Size</div>
+                            <div class="legend-desc">How well I know this skill</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon-gradient" aria-hidden="true"></div>
+                        <div class="legend-text">
+                            <div class="legend-label">Color intensity</div>
+                            <div class="legend-desc">How frequent (proficient) I use this skill</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toplists" id="toplists">
+            <div class="toplist-card">
+                <div class="toplist-title">Top 5 Most proficient skills</div>
+                <ul class="toplist-list" id="topMostList"></ul>
+                <div class="toplist-empty" id="topMostEmpty" style="display:none;"></div>
+            </div>
+            <div class="toplist-card">
+                <div class="toplist-title">Top 5 Least proficient skills</div>
+                <ul class="toplist-list" id="topLeastList"></ul>
+                <div class="toplist-empty" id="topLeastEmpty" style="display:none;"></div>
+            </div>
+        </div>
+
         <div class="people-panel" id="peoplePanel">
             <div class="people-panel-header">
-                <div class="people-panel-title">People filter</div>
+                <div class="people-panel-title">People</div>
                 <div class="people-search">
                     <input type="text" id="peopleSearch" placeholder="Search people..." />
                 </div>
@@ -273,14 +775,15 @@
             <div class="people-list" id="peopleList"></div>
         </div>
 
-        <div class="controls" id="controls">
-            <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
-            <button id="resetBtn" onclick="reset()">⌂ Reset to Overview</button>
-            <span class="breadcrumb" id="breadcrumb"></span>
-        </div>
-
-        <div class="chart-container">
-            <svg id="chart"></svg>
+        <div class="people-details-backdrop" id="peopleDetailsBackdrop" data-open="0" aria-hidden="true">
+            <div class="people-details-drawer" role="dialog" aria-modal="true" aria-labelledby="peopleDetailsTitle">
+                <div class="people-details-header">
+                    <div class="people-details-title" id="peopleDetailsTitle">Details</div>
+                    <button type="button" class="people-details-close" id="peopleDetailsCloseBtn"
+                        aria-label="Close details">×</button>
+                </div>
+                <div class="people-details-body" id="peopleDetailsBody"></div>
+            </div>
         </div>
     </div>
 
@@ -319,6 +822,7 @@
         let usageTGlobal = () => 0.6; // (usage:number) -> t in [0,1]
         let selectionAggBySkillKey = new Map(); // skillKey -> { usageSum, unlockedSum, unlockedPeopleCount }
         let selectionAggSelectedCount = 0;
+        let teamSkillStatsBySkillKey = new Map(); // skillKey -> { haveRatio, usageAvg, haveCount, totalPeople }
         let renderDebounceTimer = null;
 
         // Domain color schemes
@@ -553,6 +1057,380 @@
                 usageAvg: agg.usageSum / selectedCount,
                 unlockedSum: agg.unlockedSum
             };
+        }
+
+        function computeTeamSkillStats(persons) {
+            const people = Array.isArray(persons) ? persons : [];
+            const totalPeople = people.length;
+            const haveCountBySkillKey = new Map();
+            const usageSumBySkillKey = new Map();
+
+            for (const skillKey of skillKeyToMeta.keys()) {
+                haveCountBySkillKey.set(skillKey, 0);
+                usageSumBySkillKey.set(skillKey, 0);
+            }
+
+            people.forEach(person => {
+                const personId = String(person?.id || '').trim();
+                if (!personId) return;
+                const perSkill = personIdToSkillMetrics.get(personId);
+                if (!perSkill) return;
+
+                for (const [skillKey, metric] of perSkill.entries()) {
+                    const usage = Number(metric?.usage) || 0;
+                    const unlocked = Number(metric?.unlockedCount) || 0;
+                    if (!usageSumBySkillKey.has(skillKey)) usageSumBySkillKey.set(skillKey, 0);
+                    usageSumBySkillKey.set(skillKey, (usageSumBySkillKey.get(skillKey) || 0) + usage);
+
+                    if (unlocked > 0) {
+                        if (!haveCountBySkillKey.has(skillKey)) haveCountBySkillKey.set(skillKey, 0);
+                        haveCountBySkillKey.set(skillKey, (haveCountBySkillKey.get(skillKey) || 0) + 1);
+                    }
+                }
+            });
+
+            teamSkillStatsBySkillKey = new Map();
+            for (const skillKey of skillKeyToMeta.keys()) {
+                const haveCount = haveCountBySkillKey.get(skillKey) || 0;
+                const usageSum = usageSumBySkillKey.get(skillKey) || 0;
+                teamSkillStatsBySkillKey.set(skillKey, {
+                    haveCount,
+                    totalPeople,
+                    haveRatio: totalPeople > 0 ? haveCount / totalPeople : 0,
+                    usageAvg: totalPeople > 0 ? usageSum / totalPeople : 0
+                });
+            }
+        }
+
+        function formatPercent01(p) {
+            const n = Number(p);
+            if (!Number.isFinite(n)) return '0%';
+            return `${Math.round(Math.max(0, Math.min(1, n)) * 100)}%`;
+        }
+
+        function getGitHubUsername(person) {
+            const raw = person?.github ?? person?.githubUsername ?? person?.github_login ?? '';
+            const s = String(raw || '').trim();
+            if (s) return s;
+
+            const name = String(person?.name || '').trim();
+            const looksLikeGitHubUsername = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/.test(name);
+            return looksLikeGitHubUsername ? name : '';
+        }
+
+        function getGitHubAvatarUrl(username, size = 64) {
+            const u = String(username || '').trim();
+            if (!u) return '';
+            const s = Math.max(16, Math.min(256, Number(size) || 64));
+            return `https://github.com/${encodeURIComponent(u)}.png?size=${s}`;
+        }
+
+        function getInitials(name) {
+            const s = String(name || '').trim();
+            if (!s) return '?';
+            const parts = s.split(/\s+/).filter(Boolean);
+            if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+            return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase() || '?';
+        }
+
+        function createInitialsAvatarEl(personName) {
+            const el = document.createElement('span');
+            el.className = 'person-avatar-fallback';
+            el.textContent = getInitials(personName);
+            el.setAttribute('aria-hidden', 'true');
+            return el;
+        }
+
+        function createPersonAvatarEl(person) {
+            const personId = String(person?.id || '').trim();
+            const personName = person?.name ? String(person.name) : (personId || 'Person');
+            const gh = getGitHubUsername(person);
+            if (!gh) return createInitialsAvatarEl(personName);
+
+            const img = document.createElement('img');
+            img.className = 'person-avatar';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.referrerPolicy = 'no-referrer';
+            img.alt = `${personName} (GitHub avatar)`;
+            img.src = getGitHubAvatarUrl(gh, 64);
+            img.addEventListener('error', () => {
+                if (img.dataset.fallbackApplied === '1') return;
+                img.dataset.fallbackApplied = '1';
+                img.replaceWith(createInitialsAvatarEl(personName));
+            });
+            return img;
+        }
+
+        function renderPersonDetails({ person, container }) {
+            if (!person || !container) return;
+            const personId = String(person?.id || '').trim();
+            if (!personId) return;
+
+            const skills = Array.isArray(person?.skills) ? person.skills : [];
+            container.innerHTML = '';
+
+            const skillsSection = document.createElement('div');
+            skillsSection.className = 'person-section';
+            const skillsTitle = document.createElement('div');
+            skillsTitle.className = 'person-section-title';
+            skillsTitle.textContent = 'Skills';
+            skillsSection.appendChild(skillsTitle);
+
+            const skillsList = document.createElement('div');
+            skillsList.className = 'person-skill-list';
+
+            const sorted = [...skills].sort((a, b) => {
+                const da = String(a?.domain || '');
+                const db = String(b?.domain || '');
+                const sa = String(a?.skill || '');
+                const sb = String(b?.skill || '');
+                return da.localeCompare(db) || sa.localeCompare(sb);
+            });
+
+            const perSkillMetrics = personIdToSkillMetrics.get(personId) || new Map();
+            sorted.forEach(rec => {
+                const domainName = String(rec?.domain || '').trim();
+                const skillName = String(rec?.skill || '').trim();
+                if (!domainName || !skillName) return;
+
+                const skillKey = makeSkillKey(domainName, skillName);
+                const meta = skillKeyToMeta.get(skillKey);
+                const total = meta?.subSkillNames?.size ?? 0;
+                const metric = perSkillMetrics.get(skillKey) || { usage: 0, unlockedCount: 0 };
+                const unlocked = Number(metric?.unlockedCount) || 0;
+                const pct01 = total > 0 ? unlocked / total : 0;
+                const usage = Number(metric?.usage) || 0;
+
+                const row = document.createElement('div');
+                row.className = 'person-skill-row';
+
+                const main = document.createElement('div');
+                main.className = 'person-skill-main';
+                const name = document.createElement('div');
+                name.className = 'person-skill-name';
+                name.textContent = skillName;
+                const sub = document.createElement('div');
+                sub.className = 'person-skill-sub';
+                sub.textContent = `${domainName} • Usage ${Math.round(usage)}/100`;
+                main.appendChild(name);
+                main.appendChild(sub);
+
+                const stat = document.createElement('div');
+                stat.className = 'person-skill-stat';
+                stat.textContent = total > 0 ? `${unlocked}/${total} (${formatPercent01(pct01)})` : `${unlocked} (n/a)`;
+
+                const bar = document.createElement('div');
+                bar.className = 'person-skill-bar';
+                const fill = document.createElement('div');
+                fill.className = 'person-skill-bar-fill';
+                fill.style.width = `${Math.round(Math.max(0, Math.min(1, pct01)) * 100)}%`;
+                bar.appendChild(fill);
+
+                row.appendChild(main);
+                row.appendChild(stat);
+                row.appendChild(bar);
+                skillsList.appendChild(row);
+            });
+
+            if (skillsList.childElementCount === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'person-empty';
+                empty.textContent = 'No skills listed for this person.';
+                skillsList.appendChild(empty);
+            }
+
+            skillsSection.appendChild(skillsList);
+            container.appendChild(skillsSection);
+
+            const recoSection = document.createElement('div');
+            recoSection.className = 'person-section';
+            const recoTitle = document.createElement('div');
+            recoTitle.className = 'person-section-title';
+            recoTitle.textContent = 'AI predicted next skills';
+            recoSection.appendChild(recoTitle);
+
+            const personDomains = new Set(sorted.map(r => String(r?.domain || '').trim()).filter(Boolean));
+            const recommendations = [];
+            const totalPeople = Array.isArray(peopleData?.people) ? peopleData.people.length : 0;
+            const perSkillAll = personIdToSkillMetrics.get(personId) || new Map();
+
+            for (const [skillKey, meta] of skillKeyToMeta.entries()) {
+                const total = meta?.subSkillNames?.size ?? 0;
+                if (total <= 0) continue;
+                const metric = perSkillAll.get(skillKey) || { usage: 0, unlockedCount: 0 };
+                const unlocked = Number(metric?.unlockedCount) || 0;
+                const completion = unlocked / total;
+                if (completion >= 1) continue;
+
+                const team = teamSkillStatsBySkillKey.get(skillKey) || { haveRatio: 0, usageAvg: 0, haveCount: 0, totalPeople };
+                const domainBoost = personDomains.has(meta.domainName) ? 1 : 0.85;
+                const score = (0.6 * team.haveRatio + 0.4 * (team.usageAvg / 100)) * (1 - completion) * domainBoost;
+
+                recommendations.push({
+                    skillKey,
+                    domainName: meta.domainName,
+                    skillName: meta.skillName,
+                    completion,
+                    haveRatio: team.haveRatio,
+                    usageAvg: team.usageAvg,
+                    haveCount: team.haveCount,
+                    score
+                });
+            }
+
+            recommendations.sort((a, b) => (b.score - a.score) || (a.domainName.localeCompare(b.domainName)) || (a.skillName.localeCompare(b.skillName)));
+            const top = recommendations.slice(0, 5);
+
+            const recoList = document.createElement('div');
+            recoList.className = 'person-reco-list';
+            if (top.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'person-empty';
+                empty.textContent = 'No recommendations (all skills complete or no taxonomy data).';
+                recoList.appendChild(empty);
+            } else {
+                top.forEach(r => {
+                    const row = document.createElement('div');
+                    row.className = 'person-reco-row';
+
+                    const left = document.createElement('div');
+                    left.className = 'person-reco-main';
+                    const name = document.createElement('div');
+                    name.className = 'person-reco-name';
+                    name.textContent = r.skillName;
+                    const sub = document.createElement('div');
+                    sub.className = 'person-reco-sub';
+                    const teamPct = formatPercent01(r.haveRatio);
+                    const youPct = formatPercent01(r.completion);
+                    const haveCount = Number(r.haveCount) || 0;
+                    sub.textContent = `${r.domainName} • Team adoption ${teamPct} (${haveCount}/${totalPeople}) • You ${youPct}`;
+                    left.appendChild(name);
+                    left.appendChild(sub);
+
+                    row.appendChild(left);
+
+                    const bar = document.createElement('div');
+                    bar.className = 'person-reco-bar';
+                    const fill = document.createElement('div');
+                    fill.className = 'person-reco-bar-fill';
+                    fill.style.width = `${Math.round(Math.max(0, Math.min(1, Number(r.completion) || 0)) * 100)}%`;
+                    bar.appendChild(fill);
+                    row.appendChild(bar);
+
+                    const usageRounded = Math.round(Number(r.usageAvg) || 0);
+                    const havePctInt = Math.round(Math.max(0, Math.min(1, Number(r.haveRatio) || 0)) * 100);
+                    const completionPctInt = Math.round(Math.max(0, Math.min(1, Number(r.completion) || 0)) * 100);
+                    const gapPctInt = Math.max(0, 100 - completionPctInt);
+                    const usageLevel = usageRounded >= 60 ? 'High' : usageRounded >= 35 ? 'Medium' : 'Low';
+
+                    const reason = document.createElement('div');
+                    reason.className = 'person-reco-reason';
+                    reason.textContent = [
+                        'Reasoning:',
+                        `- Team usage ${usageRounded} (${usageLevel}) → likely relevant to current work`,
+                        `- Completion gap ${gapPctInt}% (current ${completionPctInt}%) → worth closing the gap`,
+                        `- Adoption ${havePctInt}% (${haveCount}/${totalPeople} people) → reduce single‑point knowledge risk`
+                    ].join('\n');
+                    row.appendChild(reason);
+
+                    recoList.appendChild(row);
+                });
+            }
+
+            recoSection.appendChild(recoList);
+            container.appendChild(recoSection);
+        }
+
+        function renderTopLists() {
+            const mostList = document.getElementById('topMostList');
+            const leastList = document.getElementById('topLeastList');
+            const mostEmpty = document.getElementById('topMostEmpty');
+            const leastEmpty = document.getElementById('topLeastEmpty');
+
+            if (!mostList || !leastList || !mostEmpty || !leastEmpty) return;
+
+            mostList.innerHTML = '';
+            leastList.innerHTML = '';
+
+            const selectedCount = selectedPersonIds?.size || 0;
+            if (!isPeopleModeEnabled()) {
+                const msg = 'Multi-person mode is not enabled (people.json not loaded).';
+                mostEmpty.textContent = msg;
+                leastEmpty.textContent = msg;
+                mostEmpty.style.display = 'block';
+                leastEmpty.style.display = 'block';
+                return;
+            }
+
+            if (selectedCount === 0) {
+                const msg = 'Select at least one person to compute proficient skills.';
+                mostEmpty.textContent = msg;
+                leastEmpty.textContent = msg;
+                mostEmpty.style.display = 'block';
+                leastEmpty.style.display = 'block';
+                return;
+            }
+
+            mostEmpty.style.display = 'none';
+            leastEmpty.style.display = 'none';
+
+            recomputeSelectionAggregates();
+
+            const entries = [];
+            for (const [skillKey, meta] of skillKeyToMeta.entries()) {
+                const agg2 = selectionAggBySkillKey.get(skillKey);
+                const usageSum = Number(agg2?.usageSum) || 0;
+                const usageAvg = usageSum / selectedCount; // missing skill counts as 0
+                entries.push({
+                    skillKey,
+                    domainName: meta.domainName,
+                    skillName: meta.skillName,
+                    usageAvg
+                });
+            }
+
+            const tieBreak = (a, b) => {
+                const ka = `${a.domainName}::${a.skillName}`;
+                const kb = `${b.domainName}::${b.skillName}`;
+                return ka.localeCompare(kb);
+            };
+
+            const most = [...entries]
+                .sort((a, b) => (b.usageAvg - a.usageAvg) || tieBreak(a, b))
+                .slice(0, 5);
+            const least = [...entries]
+                .sort((a, b) => (a.usageAvg - b.usageAvg) || tieBreak(a, b))
+                .slice(0, 5);
+
+            const renderList = (ul, items) => {
+                items.forEach(it => {
+                    const li = document.createElement('li');
+                    li.className = 'toplist-item';
+
+                    const left = document.createElement('div');
+                    const skill = document.createElement('div');
+                    skill.className = 'toplist-skill';
+                    skill.textContent = it.skillName;
+                    const domain = document.createElement('span');
+                    domain.className = 'toplist-domain';
+                    domain.textContent = it.domainName;
+                    left.appendChild(skill);
+                    left.appendChild(domain);
+
+                    const stat = document.createElement('div');
+                    stat.className = 'toplist-stat';
+                    const avg = Math.round(it.usageAvg);
+                    stat.textContent = `${avg}`;
+
+                    li.appendChild(left);
+                    li.appendChild(stat);
+                    ul.appendChild(li);
+                });
+            };
+
+            renderList(mostList, most);
+            renderList(leastList, least);
         }
 
         function updatePeopleCountLabel() {
@@ -808,11 +1686,59 @@
                     return '';
                 });
 
+            // Domain labels (outside the circle) in overview
+            // Kept consistent with index.html
+            if (isWorldView) {
+                const domainNodes = Array.isArray(root?.children) ? root.children : [];
+                domainNodes.forEach(domain => {
+                    if (!domain?.polygon || domain.polygon.length < 3) return;
+
+                    const domainName = String(domain?.data?.name || '');
+                    const colorScheme = domainColorSchemes[domainName] || d3.interpolateRainbow;
+                    const badgeFill = colorScheme(0.75);
+
+                    const centroid = d3.polygonCentroid(domain.polygon);
+                    const angle = Math.atan2(centroid[1], centroid[0]);
+                    const labelRadius = radius + 50;
+                    const labelX = centerX + Math.cos(angle) * labelRadius;
+                    const labelY = centerY + Math.sin(angle) * labelRadius;
+
+                    const textElement = svg.append('text')
+                        .attr('class', 'domain-label')
+                        .attr('x', labelX)
+                        .attr('y', labelY)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .attr('fill', '#fff')
+                        .attr('font-size', '15px')
+                        .attr('font-weight', 'bold')
+                        .style('pointer-events', 'none')
+                        .text(domainName);
+
+                    const bbox = textElement.node().getBBox();
+                    svg.insert('rect', () => textElement.node())
+                        .attr('class', 'domain-badge')
+                        .attr('x', bbox.x - 10)
+                        .attr('y', bbox.y - 6)
+                        .attr('width', bbox.width + 20)
+                        .attr('height', bbox.height + 12)
+                        .attr('fill', badgeFill)
+                        .attr('opacity', 0.96)
+                        .attr('rx', 10)
+                        .attr('ry', 10)
+                        .attr('stroke', 'none')
+                        .attr('stroke-width', 0)
+                        .style('filter', 'drop-shadow(0px 6px 10px rgba(0, 0, 0, 0.18))')
+                        .style('pointer-events', 'none');
+                });
+            }
+
             svg.on('click', () => {
                 if (history.length > 0) goBack();
             });
 
             applySelectionStyles(svg);
+            renderTopLists();
             updateControls();
         }
 
@@ -867,8 +1793,12 @@
             const selectAllBtn = document.getElementById('selectAllPeopleBtn');
             const clearBtn = document.getElementById('clearPeopleBtn');
             const searchInput = document.getElementById('peopleSearch');
+            const detailsBackdrop = document.getElementById('peopleDetailsBackdrop');
+            const detailsTitle = document.getElementById('peopleDetailsTitle');
+            const detailsBody = document.getElementById('peopleDetailsBody');
+            const detailsCloseBtn = document.getElementById('peopleDetailsCloseBtn');
 
-            if (!panel || !list || !selectAllBtn || !clearBtn) return;
+            if (!panel || !list || !selectAllBtn || !clearBtn || !detailsBackdrop || !detailsTitle || !detailsBody || !detailsCloseBtn) return;
 
             const persons = Array.isArray(people) ? people : [];
             if (persons.length === 0) {
@@ -884,17 +1814,54 @@
             selectedPersonIds = new Set(persons.map(p => String(p?.id || '').trim()).filter(Boolean));
             updatePeopleCountLabel();
 
+            const closeDetails = () => {
+                if (detailsBackdrop.dataset.open !== '1') return;
+                detailsBackdrop.dataset.open = '0';
+                detailsBackdrop.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('people-details-open');
+            };
+
+            const openDetails = (person) => {
+                if (!person) return;
+                const personId = String(person?.id || '').trim();
+                const personName = person?.name ? String(person.name) : personId;
+                detailsTitle.textContent = personName || 'Details';
+                detailsBody.innerHTML = '';
+                renderPersonDetails({ person, container: detailsBody });
+                detailsBackdrop.dataset.open = '1';
+                detailsBackdrop.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('people-details-open');
+            };
+
+            if (detailsBackdrop.dataset.bound !== '1') {
+                detailsBackdrop.dataset.bound = '1';
+                detailsCloseBtn.addEventListener('click', closeDetails);
+                detailsBackdrop.addEventListener('click', (e) => {
+                    if (e.target === detailsBackdrop) closeDetails();
+                });
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeDetails();
+                });
+            }
+
+            const fragment = document.createDocumentFragment();
+
             persons.forEach(person => {
                 const personId = String(person?.id || '').trim();
                 if (!personId) return;
-                const checkboxId = `person-${personId}`;
+                const personName = person?.name ? String(person.name) : personId;
+
                 const item = document.createElement('div');
-                item.className = 'people-item';
+                item.className = 'person-item';
+                item.dataset.personId = personId;
+                item.dataset.searchText = `${personName} ${personId}`.toLowerCase();
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.id = checkboxId;
+                checkbox.className = 'person-checkbox';
                 checkbox.checked = true;
+                checkbox.id = `person-check-${personId}`;
+                checkbox.setAttribute('aria-label', `Select ${personName}`);
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) selectedPersonIds.add(personId);
                     else selectedPersonIds.delete(personId);
@@ -903,37 +1870,64 @@
                 });
 
                 const label = document.createElement('label');
-                label.setAttribute('for', checkboxId);
-                label.textContent = person?.name ? String(person.name) : personId;
+                label.className = 'person-name';
+                label.htmlFor = checkbox.id;
+                label.textContent = personName;
+
+                const avatar = createPersonAvatarEl(person);
+
+                const detailsBtn = document.createElement('button');
+                detailsBtn.type = 'button';
+                detailsBtn.className = 'person-details-btn';
+                detailsBtn.textContent = 'Details';
+                detailsBtn.setAttribute('aria-label', `View details for ${personName}`);
+                detailsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openDetails(person);
+                });
+
+                // Click on row toggles the checkbox (avoid double-toggle when clicking the checkbox/label/button)
+                item.addEventListener('click', (e) => {
+                    const t = e.target;
+                    if (t === checkbox) return;
+                    if (t && t.tagName === 'LABEL') return;
+                    if (t && t.tagName === 'BUTTON') return;
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                });
 
                 item.appendChild(checkbox);
+                item.appendChild(avatar);
                 item.appendChild(label);
-                list.appendChild(item);
+                item.appendChild(detailsBtn);
+                fragment.appendChild(item);
             });
+
+            list.appendChild(fragment);
 
             if (searchInput) {
-                searchInput.addEventListener('input', () => {
+                searchInput.oninput = () => {
                     const q = String(searchInput.value || '').trim().toLowerCase();
-                    list.querySelectorAll('.people-item').forEach(item => {
-                        const txt = (item.textContent || '').toLowerCase();
+                    list.querySelectorAll('.person-item').forEach(item => {
+                        const txt = String(item?.dataset?.searchText || '');
                         item.style.display = q === '' || txt.includes(q) ? '' : 'none';
                     });
-                });
+                };
             }
 
-            selectAllBtn.addEventListener('click', () => {
+            selectAllBtn.onclick = () => {
                 selectedPersonIds = new Set(persons.map(p => String(p?.id || '').trim()).filter(Boolean));
-                list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+                list.querySelectorAll('.person-item .person-checkbox').forEach(cb => cb.checked = true);
                 updatePeopleCountLabel();
                 scheduleRender();
-            });
+            };
 
-            clearBtn.addEventListener('click', () => {
+            clearBtn.onclick = () => {
                 selectedPersonIds = new Set();
-                list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                list.querySelectorAll('.person-item .person-checkbox').forEach(cb => cb.checked = false);
                 updatePeopleCountLabel();
                 scheduleRender();
-            });
+            };
         }
 
         function extractBaseTaxonomyFromIndexHtml(indexHtmlText) {
@@ -998,6 +1992,7 @@
                 applyPeopleUnionToTaxonomy(taxonomyData, persons);
                 annotateAndIndexTaxonomy(taxonomyData);
                 buildPeopleMetrics(persons);
+                computeTeamSkillStats(persons);
                 initPeopleUI(persons);
             } catch (err) {
                 console.warn('People mode disabled:', err);
