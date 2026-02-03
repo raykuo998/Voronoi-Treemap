@@ -37,9 +37,13 @@ export function VoronoiChart() {
 
   const isPeopleMode = people.length > 0
 
+  // Structure effect: rebuild chart only when view or selection data changes.
+  // Do NOT depend on highlightedSkillKeys so hover does not tear down the chart and break click.
   useEffect(() => {
     if (!svgRef.current || !chartViewData) return
-
+    // #region agent log
+    fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:effect',message:'chart effect run',data:{isChartOverview,viewDataName:(chartViewData as { name?: string })?.name,hasChildren:Array.isArray((chartViewData as { children?: unknown[] })?.children)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B,E'})}).catch(()=>{});
+    // #endregion
     const circlePolygon = createCirclePolygon(CHART_RADIUS, 64)
     const centerX = CHART_WIDTH / 2
     const centerY = CHART_HEIGHT / 2
@@ -125,14 +129,6 @@ export function VoronoiChart() {
         }
         return colorScheme(usageTGlobal(getUsageValue(d?.data as Parameters<typeof getUsageValue>[0])))
       })
-      .attr('stroke', (d) => {
-        const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
-        return highlightedSkillKeys.has(skillKey) ? '#FFD700' : '#fff'
-      })
-      .attr('stroke-width', (d) => {
-        const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
-        return highlightedSkillKeys.has(skillKey) ? 4 : 1.5
-      })
       .attr('opacity', (d) => {
         const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
         if (hiddenSkillKeys.has(skillKey)) return 0.2
@@ -143,11 +139,19 @@ export function VoronoiChart() {
         }
         return 0.9
       })
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5)
       .style('cursor', isChartOverview ? 'pointer' : 'default')
       .on('click', function (event, d) {
         event.stopPropagation()
+        // #region agent log
+        fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:skill-cell click',message:'click',data:{isChartOverview,hasParent:!!d?.parent,parentName:(d?.parent?.data as { name?: string })?.name,taxonomyName:taxonomyData?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,C'})}).catch(()=>{});
+        // #endregion
         if (!isChartOverview) return
         const parent = d?.parent?.data as { name?: string } | undefined
+        // #region agent log
+        fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:after parent',message:'parent check',data:{parentName:parent?.name,taxonomyName:taxonomyData?.name,willCallDrill:!!(parent && taxonomyData && parent.name !== taxonomyData.name)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         if (parent && taxonomyData && parent.name !== taxonomyData.name) {
           drillDownToDomain(d.parent!.data as TaxonomyDomain)
         }
@@ -199,11 +203,25 @@ export function VoronoiChart() {
     selectionAggSelectedCount,
     usageTGlobal,
     hiddenSkillKeys,
-    highlightedSkillKeys,
-    setHighlightedSkillKeys,
     drillDownToDomain,
     chartGoBack,
   ])
+
+  // Highlight-only effect: update stroke on existing cells without rebuilding chart.
+  // Keeps click handlers intact when user hovers table rows.
+  useEffect(() => {
+    if (!svgRef.current) return
+    const sel = d3.select(svgRef.current).selectAll<SVGPathElement, LeafNode>('.skill-cell')
+    sel
+      .attr('stroke', (d) => {
+        const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
+        return highlightedSkillKeys.has(skillKey) ? '#FFD700' : '#fff'
+      })
+      .attr('stroke-width', (d) => {
+        const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
+        return highlightedSkillKeys.has(skillKey) ? 4 : 1.5
+      })
+  }, [highlightedSkillKeys])
 
   return <svg ref={svgRef} id="chart" />
 }

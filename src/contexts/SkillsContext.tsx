@@ -194,6 +194,9 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
   }, [taxonomyData])
 
   const drillDownToDomain = useCallback((domain: TaxonomyDomain) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SkillsContext.tsx:drillDownToDomain',message:'drillDownToDomain called',data:{domainName:domain?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     setChartViewData((current) => {
       if (current) setChartViewHistory((h) => [...h, current])
       return domain
