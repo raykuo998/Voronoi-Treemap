@@ -14,7 +14,7 @@ import {
   makeSkillKey,
 } from '@/lib/taxonomy'
 import { annotateTaxonomy, createUsageScale } from '@/lib/chart-utils'
-import type { TaxonomyRoot } from '@/types'
+import type { TaxonomyDomain, TaxonomyRoot } from '@/types'
 
 type SelectionAgg = {
   usageSum: number
@@ -44,6 +44,12 @@ type SkillsContextValue = {
   togglePersonVisibility: (personId: string) => void
   highlightedSkillKeys: Set<string>
   setHighlightedSkillKeys: (set: Set<string>) => void
+  chartViewData: TaxonomyRoot | TaxonomyDomain | null
+  chartViewHistory: (TaxonomyRoot | TaxonomyDomain)[]
+  drillDownToDomain: (domain: TaxonomyDomain) => void
+  chartGoBack: () => void
+  chartResetToOverview: () => void
+  isChartOverview: boolean
 }
 
 const SkillsContext = createContext<SkillsContextValue | null>(null)
@@ -122,6 +128,8 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
   const [hiddenSkillKeys, setHiddenSkillKeys] = useState<Set<string>>(new Set())
   const [hiddenPersonIds, setHiddenPersonIds] = useState<Set<string>>(new Set())
   const [highlightedSkillKeys, setHighlightedSkillKeys] = useState<Set<string>>(new Set())
+  const [chartViewData, setChartViewData] = useState<TaxonomyRoot | TaxonomyDomain | null>(null)
+  const [chartViewHistory, setChartViewHistory] = useState<(TaxonomyRoot | TaxonomyDomain)[]>([])
 
   const taxonomyData = useMemo(() => {
     if (!people.length) return null
@@ -174,6 +182,40 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {})
   }, [setPeople])
+
+  useEffect(() => {
+    if (taxonomyData) {
+      setChartViewData(taxonomyData)
+      setChartViewHistory([])
+    } else {
+      setChartViewData(null)
+      setChartViewHistory([])
+    }
+  }, [taxonomyData])
+
+  const drillDownToDomain = useCallback((domain: TaxonomyDomain) => {
+    setChartViewData((current) => {
+      if (current) setChartViewHistory((h) => [...h, current])
+      return domain
+    })
+  }, [])
+
+  const chartGoBack = useCallback(() => {
+    setChartViewHistory((h) => {
+      if (h.length === 0) return h
+      const next = [...h]
+      const prev = next.pop()!
+      setChartViewData(prev)
+      return next
+    })
+  }, [])
+
+  const chartResetToOverview = useCallback(() => {
+    if (taxonomyData) setChartViewData(taxonomyData)
+    setChartViewHistory([])
+  }, [taxonomyData])
+
+  const isChartOverview = chartViewData === taxonomyData
 
   const togglePersonSelected = useCallback((id: string) => {
     setSelectedPersonIds((prev) => {
@@ -233,6 +275,12 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
       togglePersonVisibility,
       highlightedSkillKeys,
       setHighlightedSkillKeys,
+      chartViewData,
+      chartViewHistory,
+      drillDownToDomain,
+      chartGoBack,
+      chartResetToOverview,
+      isChartOverview,
     }),
     [
       people,
@@ -252,6 +300,12 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
       hiddenPersonIds,
       togglePersonVisibility,
       highlightedSkillKeys,
+      chartViewData,
+      chartViewHistory,
+      drillDownToDomain,
+      chartGoBack,
+      chartResetToOverview,
+      isChartOverview,
     ]
   )
 

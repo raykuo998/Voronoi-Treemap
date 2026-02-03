@@ -1,4 +1,5 @@
 import { VoronoiChart } from '@/components/VoronoiChart'
+import { ChartControls } from '@/components/ChartControls'
 import { SkillsTableContainer } from '@/components/SkillsTableContainer'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         </span>
       </div>
 
+      <ChartControls />
       <div className="w-full bg-white rounded-xl shadow-lg p-6 flex justify-center items-center">
         <VoronoiChart />
       </div>

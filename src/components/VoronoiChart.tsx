@@ -14,6 +14,7 @@ import {
   mulberry32,
 } from '@/lib/chart-utils'
 import { makeSkillKey } from '@/lib/taxonomy'
+import type { TaxonomyDomain } from '@/types'
 
 type LeafNode = d3.HierarchyNode<unknown> & { polygon?: [number, number][] }
 
@@ -22,24 +23,28 @@ export function VoronoiChart() {
   const {
     people,
     taxonomyData,
+    chartViewData,
+    isChartOverview,
     selectionAggBySkillKey,
     selectionAggSelectedCount,
     usageTGlobal,
     hiddenSkillKeys,
     highlightedSkillKeys,
     setHighlightedSkillKeys,
+    drillDownToDomain,
+    chartGoBack,
   } = useSkillsContext()
 
   const isPeopleMode = people.length > 0
 
   useEffect(() => {
-    if (!svgRef.current || !taxonomyData) return
+    if (!svgRef.current || !chartViewData) return
 
     const circlePolygon = createCirclePolygon(CHART_RADIUS, 64)
     const centerX = CHART_WIDTH / 2
     const centerY = CHART_HEIGHT / 2
 
-    const root = d3.hierarchy(taxonomyData as unknown as Record<string, unknown>)
+    const root = d3.hierarchy(chartViewData as unknown as Record<string, unknown>)
       .sum((d: unknown) => {
         const node = d as { children?: unknown[]; __domain?: string; __skillKey?: string; name?: string }
         if (node && Array.isArray(node.children)) return 0
@@ -100,6 +105,10 @@ export function VoronoiChart() {
       .attr('transform', `translate(${centerX},${centerY})`)
       .attr('clip-path', 'url(#circle-clip)')
 
+    g.on('click', function (event: MouseEvent) {
+      if (event.target === this && !isChartOverview) chartGoBack()
+    })
+
     g.selectAll<SVGPathElement, LeafNode>('.skill-cell')
       .data(leaves)
       .join('path')
@@ -134,7 +143,15 @@ export function VoronoiChart() {
         }
         return 0.9
       })
-      .style('cursor', 'pointer')
+      .style('cursor', isChartOverview ? 'pointer' : 'default')
+      .on('click', function (event, d) {
+        event.stopPropagation()
+        if (!isChartOverview) return
+        const parent = d?.parent?.data as { name?: string } | undefined
+        if (parent && taxonomyData && parent.name !== taxonomyData.name) {
+          drillDownToDomain(d.parent!.data as TaxonomyDomain)
+        }
+      })
       .on('mouseover', function (_event, d) {
         d3.select(this).attr('opacity', 1)
         const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
@@ -174,7 +191,9 @@ export function VoronoiChart() {
       svg.selectAll('*').remove()
     }
   }, [
+    chartViewData,
     taxonomyData,
+    isChartOverview,
     isPeopleMode,
     selectionAggBySkillKey,
     selectionAggSelectedCount,
@@ -182,6 +201,8 @@ export function VoronoiChart() {
     hiddenSkillKeys,
     highlightedSkillKeys,
     setHighlightedSkillKeys,
+    drillDownToDomain,
+    chartGoBack,
   ])
 
   return <svg ref={svgRef} id="chart" />
