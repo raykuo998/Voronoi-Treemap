@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.local
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+.idea/
+.vscode/
+!.vscode/extensions.json
+
+# Optional: test coverage (uncomment if you add tests)
+# coverage/

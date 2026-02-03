@@ -1,0 +1,1542 @@
+{
+  "people": [
+    {
+      "id": "P0001",
+      "name": "Person 1",
+      "skills": [
+        {
+          "domain": "DevOps",
+          "skill": "AWS",
+          "usage": 89,
+          "unlockedSubSkills": [
+            "EC2/VPC basics",
+            "S3",
+            "IAM"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 39,
+          "unlockedSubSkills": [
+            "Design systems"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Flutter",
+          "usage": 80,
+          "unlockedSubSkills": [
+            "State mgmt",
+            "Widgets"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 76,
+          "unlockedSubSkills": [
+            "UIKit/SwiftUI basics"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Go",
+          "usage": 87,
+          "unlockedSubSkills": [
+            "Channels",
+            "Goroutines"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Angular",
+          "usage": 42,
+          "unlockedSubSkills": [
+            "Forms"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "React",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "Testing",
+            "Hooks",
+            "Routing"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 89,
+          "unlockedSubSkills": [
+            "Jobs"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 95,
+          "unlockedSubSkills": [
+            "Indexes",
+            "Schema design",
+            "Query tuning"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 31,
+          "unlockedSubSkills": [
+            "Utility workflow"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0002",
+      "name": "Person 2",
+      "skills": [
+        {
+          "domain": "Frontend",
+          "skill": "Angular",
+          "usage": 86,
+          "unlockedSubSkills": [
+            "Components",
+            "RxJS"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Nginx",
+          "usage": 49,
+          "unlockedSubSkills": [
+            "Reverse proxy"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Java",
+          "usage": 47,
+          "unlockedSubSkills": [
+            "OOP",
+            "Spring basics"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 76,
+          "unlockedSubSkills": [
+            "Generics",
+            "Type narrowing",
+            "Types & interfaces"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 65,
+          "unlockedSubSkills": [
+            "UIKit/SwiftUI basics",
+            "Concurrency"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 97,
+          "unlockedSubSkills": [
+            "Agents",
+            "Jobs"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Vue.js",
+          "usage": 22,
+          "unlockedSubSkills": [
+            "Composition API"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 90,
+          "unlockedSubSkills": [
+            "Asyncio",
+            "Typing",
+            "Core syntax",
+            "Packaging"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "REST API",
+          "usage": 38,
+          "unlockedSubSkills": [
+            "Routing"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Go",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Channels",
+            "Goroutines"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Git",
+          "usage": 71,
+          "unlockedSubSkills": [
+            "Rebase",
+            "Hooks",
+            "Conflicts"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Flutter",
+          "usage": 63,
+          "unlockedSubSkills": [
+            "Widgets"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "MongoDB",
+          "usage": 98,
+          "unlockedSubSkills": [
+            "Aggregation",
+            "Documents"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 56,
+          "unlockedSubSkills": [
+            "Pipelines"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "React",
+          "usage": 76,
+          "unlockedSubSkills": [
+            "Performance",
+            "State management",
+            "Testing"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Kotlin",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Syntax",
+            "Coroutines"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 97,
+          "unlockedSubSkills": [
+            "Compose",
+            "Images & layers",
+            "Networking"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "GraphQL",
+          "usage": 33,
+          "unlockedSubSkills": [
+            "Schemas"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 77,
+          "unlockedSubSkills": [
+            "Schema design",
+            "Indexes"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "App lifecycle"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 70,
+          "unlockedSubSkills": [
+            "Streams",
+            "Performance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0003",
+      "name": "Person 3",
+      "skills": [
+        {
+          "domain": "Frontend",
+          "skill": "React",
+          "usage": 34,
+          "unlockedSubSkills": [
+            "Testing",
+            "Performance"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 82,
+          "unlockedSubSkills": [
+            "Concurrency",
+            "UIKit/SwiftUI basics"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Kotlin",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Coroutines",
+            "Syntax"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Jobs"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Git",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "Rebase",
+            "Hooks",
+            "Conflicts"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Jest",
+          "usage": 85,
+          "unlockedSubSkills": [
+            "Unit tests",
+            "Coverage",
+            "Mocks"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "REST API",
+          "usage": 50,
+          "unlockedSubSkills": [
+            "Routing",
+            "Versioning"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 65,
+          "unlockedSubSkills": [
+            "Artifacts"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Schema design"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 95,
+          "unlockedSubSkills": [
+            "Responsive design",
+            "Layout (Flex/Grid)",
+            "Animations",
+            "Design systems"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 81,
+          "unlockedSubSkills": [
+            "Typing",
+            "Packaging"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Terraform",
+          "usage": 99,
+          "unlockedSubSkills": [
+            "State & modules",
+            "Best practices"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 22,
+          "unlockedSubSkills": [
+            "Generics"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 55,
+          "unlockedSubSkills": [
+            "Data fetching"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "GraphQL",
+          "usage": 38,
+          "unlockedSubSkills": [
+            "Resolvers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0004",
+      "name": "Person 4",
+      "skills": [
+        {
+          "domain": "DevOps",
+          "skill": "AWS",
+          "usage": 17,
+          "unlockedSubSkills": []
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 22,
+          "unlockedSubSkills": []
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 79,
+          "unlockedSubSkills": [
+            "Component patterns",
+            "Config & theme"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "MongoDB",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Documents"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 84,
+          "unlockedSubSkills": [
+            "Asyncio",
+            "Core syntax",
+            "Packaging",
+            "Typing"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Jest",
+          "usage": 83,
+          "unlockedSubSkills": [
+            "Coverage",
+            "Unit tests",
+            "Mocks"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Android",
+          "usage": 62,
+          "unlockedSubSkills": [
+            "Activities"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 64,
+          "unlockedSubSkills": [
+            "Generics",
+            "Types & interfaces"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 86,
+          "unlockedSubSkills": [
+            "Compose",
+            "Images & layers"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Server components",
+            "Data fetching"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 87,
+          "unlockedSubSkills": [
+            "Testing",
+            "Performance",
+            "Streams"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 54,
+          "unlockedSubSkills": [
+            "App lifecycle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0005",
+      "name": "Person 5",
+      "skills": [
+        {
+          "domain": "Frontend",
+          "skill": "Angular",
+          "usage": 33,
+          "unlockedSubSkills": [
+            "Forms"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 81,
+          "unlockedSubSkills": [
+            "Routing",
+            "Data fetching"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Jest",
+          "usage": 91,
+          "unlockedSubSkills": [
+            "Mocks",
+            "Coverage",
+            "Unit tests"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "AWS",
+          "usage": 28,
+          "unlockedSubSkills": [
+            "S3"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Webpack",
+          "usage": 29,
+          "unlockedSubSkills": [
+            "Plugins"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 78,
+          "unlockedSubSkills": [
+            "Typing",
+            "Asyncio"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 54,
+          "unlockedSubSkills": [
+            "UIKit/SwiftUI basics"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Kubernetes",
+          "usage": 38,
+          "unlockedSubSkills": [
+            "Deployments"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Kotlin",
+          "usage": 41,
+          "unlockedSubSkills": [
+            "Syntax"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "React",
+          "usage": 63,
+          "unlockedSubSkills": [
+            "Testing",
+            "Routing"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 88,
+          "unlockedSubSkills": [
+            "Query tuning",
+            "Indexes"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 50,
+          "unlockedSubSkills": [
+            "Pipelines",
+            "Testing stages"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 90,
+          "unlockedSubSkills": [
+            "Component patterns",
+            "Config & theme"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Redis",
+          "usage": 46,
+          "unlockedSubSkills": [
+            "Data structures"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Android",
+          "usage": 52,
+          "unlockedSubSkills": [
+            "Activities"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 32,
+          "unlockedSubSkills": [
+            "Testing"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 85,
+          "unlockedSubSkills": [
+            "Images & layers",
+            "Compose",
+            "Networking"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Publishing"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Java",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "OOP",
+            "JVM tuning"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "GraphQL",
+          "usage": 64,
+          "unlockedSubSkills": [
+            "Resolvers"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 69,
+          "unlockedSubSkills": [
+            "Responsive design",
+            "Layout (Flex/Grid)"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "MongoDB",
+          "usage": 70,
+          "unlockedSubSkills": [
+            "Documents"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "React Native",
+          "usage": 75,
+          "unlockedSubSkills": [
+            "Performance",
+            "Native modules"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Flutter",
+          "usage": 84,
+          "unlockedSubSkills": [
+            "Widgets",
+            "State mgmt"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "REST API",
+          "usage": 78,
+          "unlockedSubSkills": [
+            "Auth patterns",
+            "Pagination"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Nginx",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Reverse proxy",
+            "TLS basics"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 95,
+          "unlockedSubSkills": [
+            "Generics",
+            "Type narrowing",
+            "Types & interfaces"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Vue.js",
+          "usage": 59,
+          "unlockedSubSkills": [
+            "Composition API",
+            "State (Pinia)"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Redux",
+          "usage": 82,
+          "unlockedSubSkills": [
+            "Redux Toolkit",
+            "Middleware"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0006",
+      "name": "Person 6",
+      "skills": [
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 68,
+          "unlockedSubSkills": [
+            "Server components",
+            "Data fetching"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Go",
+          "usage": 71,
+          "unlockedSubSkills": [
+            "Goroutines"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 44,
+          "unlockedSubSkills": [
+            "Compose"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Webpack",
+          "usage": 56,
+          "unlockedSubSkills": [
+            "Plugins"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "MongoDB",
+          "usage": 95,
+          "unlockedSubSkills": [
+            "Aggregation",
+            "Documents"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 53,
+          "unlockedSubSkills": [
+            "Artifacts",
+            "Pipelines"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Android",
+          "usage": 64,
+          "unlockedSubSkills": [
+            "Activities"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Git",
+          "usage": 51,
+          "unlockedSubSkills": [
+            "Conflicts",
+            "Branching"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 94,
+          "unlockedSubSkills": [
+            "Streams",
+            "Testing"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 95,
+          "unlockedSubSkills": [
+            "Animations",
+            "Design systems",
+            "Responsive design"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "REST API",
+          "usage": 46,
+          "unlockedSubSkills": [
+            "Pagination",
+            "Versioning"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Kotlin",
+          "usage": 64,
+          "unlockedSubSkills": [
+            "Coroutines"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 22,
+          "unlockedSubSkills": [
+            "Schema design"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "React",
+          "usage": 94,
+          "unlockedSubSkills": [
+            "State management",
+            "Hooks",
+            "Routing",
+            "Performance",
+            "Testing"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Kubernetes",
+          "usage": 90,
+          "unlockedSubSkills": [
+            "Deployments",
+            "Services",
+            "Ingress"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 35,
+          "unlockedSubSkills": [
+            "Agents"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 65,
+          "unlockedSubSkills": [
+            "UIKit/SwiftUI basics"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 19,
+          "unlockedSubSkills": [
+            "Config & theme"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0007",
+      "name": "Person 7",
+      "skills": [
+        {
+          "domain": "Backend",
+          "skill": "Go",
+          "usage": 84,
+          "unlockedSubSkills": [
+            "Channels",
+            "Goroutines"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Vue.js",
+          "usage": 52,
+          "unlockedSubSkills": [
+            "State (Pinia)",
+            "Routing"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Git",
+          "usage": 46,
+          "unlockedSubSkills": [
+            "Branching"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Webpack",
+          "usage": 69,
+          "unlockedSubSkills": [
+            "Plugins"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 98,
+          "unlockedSubSkills": [
+            "Publishing",
+            "App lifecycle"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 41,
+          "unlockedSubSkills": [
+            "Packaging",
+            "Asyncio"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "GraphQL",
+          "usage": 77,
+          "unlockedSubSkills": [
+            "Resolvers",
+            "Schemas"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Redux",
+          "usage": 79,
+          "unlockedSubSkills": [
+            "Core concepts",
+            "Middleware"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Kubernetes",
+          "usage": 96,
+          "unlockedSubSkills": [
+            "Deployments",
+            "Ingress",
+            "Services"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Flutter",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "State mgmt"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 54,
+          "unlockedSubSkills": [
+            "Artifacts"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Redis",
+          "usage": 62,
+          "unlockedSubSkills": [
+            "Caching"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Nginx",
+          "usage": 39,
+          "unlockedSubSkills": [
+            "TLS basics"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 26,
+          "unlockedSubSkills": []
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 68,
+          "unlockedSubSkills": [
+            "Component patterns"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Kotlin",
+          "usage": 75,
+          "unlockedSubSkills": [
+            "Coroutines"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 40,
+          "unlockedSubSkills": [
+            "Compose"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 92,
+          "unlockedSubSkills": [
+            "Async patterns",
+            "Testing",
+            "Performance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0008",
+      "name": "Person 8",
+      "skills": [
+        {
+          "domain": "Mobile",
+          "skill": "Android",
+          "usage": 53,
+          "unlockedSubSkills": [
+            "Jetpack basics"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Kubernetes",
+          "usage": 65,
+          "unlockedSubSkills": [
+            "Ingress",
+            "Deployments"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Angular",
+          "usage": 35,
+          "unlockedSubSkills": [
+            "Forms"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "MongoDB",
+          "usage": 32,
+          "unlockedSubSkills": [
+            "Documents"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Redux",
+          "usage": 36,
+          "unlockedSubSkills": [
+            "Middleware"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 93,
+          "unlockedSubSkills": [
+            "Testing",
+            "Performance",
+            "Async patterns",
+            "Streams"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 49,
+          "unlockedSubSkills": [
+            "Query tuning",
+            "Indexes"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 76,
+          "unlockedSubSkills": [
+            "Jobs"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 54,
+          "unlockedSubSkills": [
+            "Type narrowing"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "Responsive design",
+            "Layout (Flex/Grid)"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 50,
+          "unlockedSubSkills": [
+            "Server components"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Redis",
+          "usage": 39,
+          "unlockedSubSkills": []
+        },
+        {
+          "domain": "DevOps",
+          "skill": "AWS",
+          "usage": 51,
+          "unlockedSubSkills": [
+            "IAM"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Terraform",
+          "usage": 32,
+          "unlockedSubSkills": []
+        }
+      ]
+    },
+    {
+      "id": "P0009",
+      "name": "Person 9",
+      "skills": [
+        {
+          "domain": "Backend",
+          "skill": "GraphQL",
+          "usage": 78,
+          "unlockedSubSkills": [
+            "Resolvers"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 54,
+          "unlockedSubSkills": [
+            "Packaging",
+            "Core syntax"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Jest",
+          "usage": 82,
+          "unlockedSubSkills": [
+            "Mocks",
+            "Coverage",
+            "Unit tests"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "PostgreSQL",
+          "usage": 82,
+          "unlockedSubSkills": [
+            "Schema design",
+            "Query tuning"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Swift",
+          "usage": 23,
+          "unlockedSubSkills": []
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 99,
+          "unlockedSubSkills": [
+            "Publishing"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "AWS",
+          "usage": 56,
+          "unlockedSubSkills": [
+            "S3",
+            "EC2/VPC basics"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Redis",
+          "usage": 82,
+          "unlockedSubSkills": [
+            "Caching"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Angular",
+          "usage": 93,
+          "unlockedSubSkills": [
+            "Components",
+            "Forms",
+            "RxJS"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 22,
+          "unlockedSubSkills": [
+            "Component patterns"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "CSS/SASS",
+          "usage": 14,
+          "unlockedSubSkills": [
+            "Design systems"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Java",
+          "usage": 71,
+          "unlockedSubSkills": [
+            "OOP",
+            "JVM tuning"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 93,
+          "unlockedSubSkills": [
+            "Routing",
+            "Data fetching"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Terraform",
+          "usage": 67,
+          "unlockedSubSkills": [
+            "Best practices"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "React Native",
+          "usage": 33,
+          "unlockedSubSkills": [
+            "Performance"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Docker",
+          "usage": 41,
+          "unlockedSubSkills": [
+            "Networking"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 81,
+          "unlockedSubSkills": [
+            "Types & interfaces",
+            "Type narrowing",
+            "Advanced utility types"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Jenkins",
+          "usage": 55,
+          "unlockedSubSkills": [
+            "Jobs"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Kubernetes",
+          "usage": 20,
+          "unlockedSubSkills": [
+            "Services"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "CI/CD",
+          "usage": 34,
+          "unlockedSubSkills": [
+            "Pipelines"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "REST API",
+          "usage": 90,
+          "unlockedSubSkills": [
+            "Pagination",
+            "Auth patterns"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Redux",
+          "usage": 80,
+          "unlockedSubSkills": [
+            "Core concepts",
+            "Middleware"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P0010",
+      "name": "Person 10",
+      "skills": [
+        {
+          "domain": "Backend",
+          "skill": "Redis",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Data structures"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "TypeScript",
+          "usage": 61,
+          "unlockedSubSkills": [
+            "Advanced utility types",
+            "Type narrowing"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "React Native",
+          "usage": 37,
+          "unlockedSubSkills": [
+            "Performance"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Redux",
+          "usage": 57,
+          "unlockedSubSkills": [
+            "Redux Toolkit"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Git",
+          "usage": 74,
+          "unlockedSubSkills": [
+            "Hooks",
+            "Branching",
+            "Rebase"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Tailwind",
+          "usage": 79,
+          "unlockedSubSkills": [
+            "Utility workflow",
+            "Config & theme",
+            "Component patterns"
+          ]
+        },
+        {
+          "domain": "DevOps",
+          "skill": "Terraform",
+          "usage": 62,
+          "unlockedSubSkills": [
+            "State & modules"
+          ]
+        },
+        {
+          "domain": "Frontend",
+          "skill": "Next.js",
+          "usage": 67,
+          "unlockedSubSkills": [
+            "Routing",
+            "Server components"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Python",
+          "usage": 72,
+          "unlockedSubSkills": [
+            "Core syntax",
+            "Typing"
+          ]
+        },
+        {
+          "domain": "Backend",
+          "skill": "Node.js",
+          "usage": 60,
+          "unlockedSubSkills": [
+            "Streams"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "iOS Dev",
+          "usage": 84,
+          "unlockedSubSkills": [
+            "App lifecycle"
+          ]
+        },
+        {
+          "domain": "Mobile",
+          "skill": "Flutter",
+          "usage": 27,
+          "unlockedSubSkills": [
+            "Widgets"
+          ]
+        }
+      ]
+    }
+  ]
+}
