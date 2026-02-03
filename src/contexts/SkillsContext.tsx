@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -163,6 +164,16 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
     setPeopleState(p)
     setSelectedPersonIds(new Set(p.map((x) => String(x?.id ?? '').trim()).filter(Boolean)))
   }, [])
+
+  useEffect(() => {
+    fetch('/people.json')
+      .then((res) => res.json())
+      .then((data: { people?: Person[] }) => {
+        const list = Array.isArray(data?.people) ? data.people : []
+        setPeople(list)
+      })
+      .catch(() => {})
+  }, [setPeople])
 
   const togglePersonSelected = useCallback((id: string) => {
     setSelectedPersonIds((prev) => {

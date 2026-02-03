@@ -1,6 +1,5 @@
 import { VoronoiChart } from '@/components/VoronoiChart'
 import { SkillsTableContainer } from '@/components/SkillsTableContainer'
-import { PeoplePanel } from '@/components/PeoplePanel'
 
 export default function App() {
   return (
@@ -16,8 +15,6 @@ export default function App() {
           Skill Map: Competencies within Technical Domains
         </span>
       </div>
-
-      <PeoplePanel />
 
       <div className="w-full bg-white rounded-xl shadow-lg p-6 flex justify-center items-center">
         <VoronoiChart />
