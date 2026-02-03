@@ -11,6 +11,7 @@ export function useSkillTableData(): SkillTableRow[] {
     skillKeyToMeta,
     personIdToSkillMetrics,
     hiddenSkillKeys,
+    chartViewSkillKeys,
   } = useSkillsContext()
 
   return useMemo(() => {
@@ -19,6 +20,7 @@ export function useSkillTableData(): SkillTableRow[] {
     if (selected.length === 0) return rows
 
     selectionAggBySkillKey.forEach((agg, skillKey) => {
+      if (chartViewSkillKeys && !chartViewSkillKeys.has(skillKey)) return
       const meta = skillKeyToMeta.get(skillKey)
       if (!meta) return
       const totalUsage = agg.usageSum
@@ -58,6 +60,7 @@ export function useSkillTableData(): SkillTableRow[] {
     skillKeyToMeta,
     personIdToSkillMetrics,
     hiddenSkillKeys,
+    chartViewSkillKeys,
   ])
 }
 
@@ -69,15 +72,19 @@ export function usePersonTableData(): PersonTableRow[] {
     selectionAggBySkillKey,
     selectionAggSelectedCount,
     hiddenPersonIds,
+    chartViewSkillKeys,
   } = useSkillsContext()
 
   return useMemo(() => {
     const rows: PersonTableRow[] = []
+    const filterByView = (skillKey: string) => !chartViewSkillKeys || chartViewSkillKeys.has(skillKey)
+
     let totalChartUsage = 0
     selectedPersonIds.forEach((personId) => {
       const perSkill = personIdToSkillMetrics.get(personId)
       if (!perSkill) return
-      perSkill.forEach((m) => {
+      perSkill.forEach((m, skillKey) => {
+        if (!filterByView(skillKey)) return
         totalChartUsage += Number(m?.usage) ?? 0
       })
     })
@@ -93,6 +100,7 @@ export function usePersonTableData(): PersonTableRow[] {
       const domainSums: Record<string, number> = {}
 
       perSkill.forEach((metric, skillKey) => {
+        if (!filterByView(skillKey)) return
         const usage = Number(metric?.usage) ?? 0
         if (usage === 0) return
         totalUsage += usage
@@ -100,6 +108,8 @@ export function usePersonTableData(): PersonTableRow[] {
         if (domain) domainSums[domain] = (domainSums[domain] ?? 0) + usage
         skills.push({ skillKey, skillName, domain, usage })
       })
+
+      if (chartViewSkillKeys && skills.length === 0) return
 
       skills.sort((a, b) => b.usage - a.usage)
       const chartPercentage = totalChartUsage > 0 ? (totalUsage / totalChartUsage) * 100 : 0
@@ -131,5 +141,6 @@ export function usePersonTableData(): PersonTableRow[] {
     selectionAggBySkillKey,
     selectionAggSelectedCount,
     hiddenPersonIds,
+    chartViewSkillKeys,
   ])
 }

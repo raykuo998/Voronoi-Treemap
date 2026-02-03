@@ -18,7 +18,13 @@ import type { TaxonomyDomain } from '@/types'
 
 type LeafNode = d3.HierarchyNode<unknown> & { polygon?: [number, number][] }
 
-export function VoronoiChart() {
+export type DomainLabelPosition = { domainName: string; x: number; y: number; color: string }
+
+type VoronoiChartProps = {
+  onDomainPositionsChange?: (positions: DomainLabelPosition[]) => void
+}
+
+export function VoronoiChart({ onDomainPositionsChange }: VoronoiChartProps = {}) {
   const svgRef = useRef<SVGSVGElement>(null)
   const {
     people,
@@ -29,7 +35,7 @@ export function VoronoiChart() {
     selectionAggSelectedCount,
     usageTGlobal,
     hiddenSkillKeys,
-    highlightedSkillKeys,
+    effectiveHighlightedSkillKeys,
     setHighlightedSkillKeys,
     drillDownToDomain,
     chartGoBack,
@@ -38,12 +44,9 @@ export function VoronoiChart() {
   const isPeopleMode = people.length > 0
 
   // Structure effect: rebuild chart only when view or selection data changes.
-  // Do NOT depend on highlightedSkillKeys so hover does not tear down the chart and break click.
+  // Overview = all skills (one cell per skill, colored by domain). Domain view = one domain's skills; click any → back.
   useEffect(() => {
     if (!svgRef.current || !chartViewData) return
-    // #region agent log
-    fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:effect',message:'chart effect run',data:{isChartOverview,viewDataName:(chartViewData as { name?: string })?.name,hasChildren:Array.isArray((chartViewData as { children?: unknown[] })?.children)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B,E'})}).catch(()=>{});
-    // #endregion
     const circlePolygon = createCirclePolygon(CHART_RADIUS, 64)
     const centerX = CHART_WIDTH / 2
     const centerY = CHART_HEIGHT / 2
@@ -51,7 +54,7 @@ export function VoronoiChart() {
     const root = d3.hierarchy(chartViewData as unknown as Record<string, unknown>)
       .sum((d: unknown) => {
         const node = d as { children?: unknown[]; __domain?: string; __skillKey?: string; name?: string }
-        if (node && Array.isArray(node.children)) return 0
+        if (node && Array.isArray(node.children) && node.children.length > 0) return 0
         const domainName = (node as { __domain?: string }).__domain ?? ''
         const skillKey =
           (node as { __skillKey?: string }).__skillKey ?? makeSkillKey(domainName, (node as { name?: string }).name ?? '')
@@ -141,19 +144,16 @@ export function VoronoiChart() {
       })
       .attr('stroke', '#fff')
       .attr('stroke-width', 1.5)
-      .style('cursor', isChartOverview ? 'pointer' : 'default')
+      .style('cursor', 'pointer')
       .on('click', function (event, d) {
         event.stopPropagation()
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:skill-cell click',message:'click',data:{isChartOverview,hasParent:!!d?.parent,parentName:(d?.parent?.data as { name?: string })?.name,taxonomyName:taxonomyData?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,C'})}).catch(()=>{});
-        // #endregion
-        if (!isChartOverview) return
+        if (!isChartOverview) {
+          chartGoBack()
+          return
+        }
         const parent = d?.parent?.data as { name?: string } | undefined
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VoronoiChart.tsx:after parent',message:'parent check',data:{parentName:parent?.name,taxonomyName:taxonomyData?.name,willCallDrill:!!(parent && taxonomyData && parent.name !== taxonomyData.name)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         if (parent && taxonomyData && parent.name !== taxonomyData.name) {
-          drillDownToDomain(d.parent!.data as TaxonomyDomain)
+          drillDownToDomain(d!.parent!.data as TaxonomyDomain)
         }
       })
       .on('mouseover', function (_event, d) {
@@ -164,6 +164,41 @@ export function VoronoiChart() {
       .on('mouseout', () => {
         setHighlightedSkillKeys(new Set())
       })
+
+    const domainNameFor = (d: LeafNode) =>
+      (d?.parent?.data as { name?: string })?.name ?? (d?.data as { __domain?: string })?.__domain ?? ''
+
+    const domainLabelOffset = 52
+    const byDomain = new Map<string, LeafNode[]>()
+    leaves.forEach((leaf) => {
+      const name = domainNameFor(leaf)
+      if (!name) return
+      if (!byDomain.has(name)) byDomain.set(name, [])
+      byDomain.get(name)!.push(leaf)
+    })
+    const domainPositions: DomainLabelPosition[] = []
+    byDomain.forEach((domainLeaves, domainName) => {
+      let cx = 0
+      let cy = 0
+      let n = 0
+      domainLeaves.forEach((leaf) => {
+        if (leaf.polygon) {
+          const c = d3.polygonCentroid(leaf.polygon)
+          cx += c[0]
+          cy += c[1]
+          n += 1
+        }
+      })
+      if (n === 0) return
+      cx /= n
+      cy /= n
+      const len = Math.sqrt(cx * cx + cy * cy) || 1
+      const r = CHART_RADIUS + domainLabelOffset
+      const color = getDomainColorScheme(domainName)(0.6)
+      domainPositions.push({ domainName, x: (cx / len) * r, y: (cy / len) * r, color })
+    })
+
+    onDomainPositionsChange?.(domainPositions)
 
     g.selectAll<SVGTextElement, LeafNode>('.skill-label')
       .data(leaves)
@@ -193,6 +228,7 @@ export function VoronoiChart() {
 
     return () => {
       svg.selectAll('*').remove()
+      onDomainPositionsChange?.([])
     }
   }, [
     chartViewData,
@@ -205,23 +241,21 @@ export function VoronoiChart() {
     hiddenSkillKeys,
     drillDownToDomain,
     chartGoBack,
+    onDomainPositionsChange,
   ])
 
   // Highlight-only effect: update stroke on existing cells without rebuilding chart.
-  // Keeps click handlers intact when user hovers table rows.
+  // Uses effectiveHighlightedSkillKeys (pinned person from table click or hover).
   useEffect(() => {
     if (!svgRef.current) return
     const sel = d3.select(svgRef.current).selectAll<SVGPathElement, LeafNode>('.skill-cell')
     sel
-      .attr('stroke', (d) => {
-        const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
-        return highlightedSkillKeys.has(skillKey) ? '#FFD700' : '#fff'
-      })
+      .attr('stroke', '#fff')
       .attr('stroke-width', (d) => {
         const skillKey = (d?.data as { __skillKey?: string })?.__skillKey ?? ''
-        return highlightedSkillKeys.has(skillKey) ? 4 : 1.5
+        return effectiveHighlightedSkillKeys.has(skillKey) ? 4 : 1.5
       })
-  }, [highlightedSkillKeys])
+  }, [effectiveHighlightedSkillKeys])
 
   return <svg ref={svgRef} id="chart" />
 }

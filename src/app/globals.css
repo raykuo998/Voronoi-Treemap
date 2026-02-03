@@ -54,3 +54,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Voronoi chart: subtle pulse on hover-highlighted cell */
+#chart .skill-cell--highlighted {
+  animation: skill-cell-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skill-cell-pulse {
+  0%,
+  100% {
+    stroke-width: 3.5;
+  }
+  50% {
+    stroke-width: 4.5;
+  }
+}

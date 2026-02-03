@@ -17,7 +17,7 @@ import type { PersonTableRow } from '@/types'
 export function PersonTable() {
   const data = usePersonTableData()
   const { highlightByPersonId, clearHighlight } = useChartHighlight()
-  const { togglePersonVisibility } = useSkillsContext()
+  const { togglePersonVisibility, pinnedHighlightPersonId, setPinnedHighlightPersonId } = useSkillsContext()
 
   const columns: ColumnDef<PersonTableRow>[] = [
     {
@@ -61,6 +61,11 @@ export function PersonTable() {
           </button>
         )
       },
+    },
+    {
+      id: 'rank',
+      header: 'Rank',
+      cell: ({ row }) => <span className="text-muted-foreground tabular-nums">{row.index + 1}</span>,
     },
     { header: 'Person', accessorKey: 'personName', cell: ({ row }) => <span className="font-medium">{row.original.personName}</span> },
     {
@@ -116,7 +121,7 @@ export function PersonTable() {
             table.getRowModel().rows.map((row) => (
               <Fragment key={row.id}>
                 <TableRow
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${pinnedHighlightPersonId === row.original.personId ? 'bg-primary/10' : ''}`}
                   onMouseEnter={() =>
                     highlightByPersonId(
                       row.original.personId,
@@ -124,6 +129,11 @@ export function PersonTable() {
                     )
                   }
                   onMouseLeave={() => clearHighlight()}
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest('button')) return
+                    const id = row.original.personId
+                    setPinnedHighlightPersonId((prev) => (prev === id ? null : id))
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

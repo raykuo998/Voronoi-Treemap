@@ -13,6 +13,7 @@ import {
   cloneTaxonomy,
   makeSkillKey,
 } from '@/lib/taxonomy'
+import type { TaxonomySkill } from '@/types'
 import { annotateTaxonomy, createUsageScale } from '@/lib/chart-utils'
 import type { TaxonomyDomain, TaxonomyRoot } from '@/types'
 
@@ -44,8 +45,12 @@ type SkillsContextValue = {
   togglePersonVisibility: (personId: string) => void
   highlightedSkillKeys: Set<string>
   setHighlightedSkillKeys: (set: Set<string>) => void
+  pinnedHighlightPersonId: string | null
+  setPinnedHighlightPersonId: (id: string | null) => void
+  effectiveHighlightedSkillKeys: Set<string>
   chartViewData: TaxonomyRoot | TaxonomyDomain | null
   chartViewHistory: (TaxonomyRoot | TaxonomyDomain)[]
+  chartViewSkillKeys: Set<string> | null
   drillDownToDomain: (domain: TaxonomyDomain) => void
   chartGoBack: () => void
   chartResetToOverview: () => void
@@ -128,6 +133,7 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
   const [hiddenSkillKeys, setHiddenSkillKeys] = useState<Set<string>>(new Set())
   const [hiddenPersonIds, setHiddenPersonIds] = useState<Set<string>>(new Set())
   const [highlightedSkillKeys, setHighlightedSkillKeys] = useState<Set<string>>(new Set())
+  const [pinnedHighlightPersonId, setPinnedHighlightPersonId] = useState<string | null>(null)
   const [chartViewData, setChartViewData] = useState<TaxonomyRoot | TaxonomyDomain | null>(null)
   const [chartViewHistory, setChartViewHistory] = useState<(TaxonomyRoot | TaxonomyDomain)[]>([])
 
@@ -194,9 +200,6 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
   }, [taxonomyData])
 
   const drillDownToDomain = useCallback((domain: TaxonomyDomain) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7248/ingest/395f4444-8b3f-4f30-b1b4-d17e833187aa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SkillsContext.tsx:drillDownToDomain',message:'drillDownToDomain called',data:{domainName:domain?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     setChartViewData((current) => {
       if (current) setChartViewHistory((h) => [...h, current])
       return domain
@@ -219,6 +222,27 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
   }, [taxonomyData])
 
   const isChartOverview = chartViewData === taxonomyData
+
+  const chartViewSkillKeys = useMemo((): Set<string> | null => {
+    if (!chartViewData || isChartOverview) return null
+    const domain = chartViewData as TaxonomyDomain
+    const set = new Set<string>()
+    ;(domain.children ?? []).forEach((s: TaxonomySkill) => {
+      const key =
+        (s as { __skillKey?: string }).__skillKey ?? makeSkillKey(domain.name, s?.name ?? '')
+      if (key) set.add(key)
+    })
+    return set
+  }, [chartViewData, isChartOverview])
+
+  const effectiveHighlightedSkillKeys = useMemo((): Set<string> => {
+    if (pinnedHighlightPersonId) {
+      const m = personIdToSkillMetrics.get(pinnedHighlightPersonId)
+      if (m) return new Set(m.keys())
+      return new Set()
+    }
+    return highlightedSkillKeys
+  }, [pinnedHighlightPersonId, highlightedSkillKeys, personIdToSkillMetrics])
 
   const togglePersonSelected = useCallback((id: string) => {
     setSelectedPersonIds((prev) => {
@@ -278,8 +302,12 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
       togglePersonVisibility,
       highlightedSkillKeys,
       setHighlightedSkillKeys,
+      pinnedHighlightPersonId,
+      setPinnedHighlightPersonId,
+      effectiveHighlightedSkillKeys,
       chartViewData,
       chartViewHistory,
+      chartViewSkillKeys,
       drillDownToDomain,
       chartGoBack,
       chartResetToOverview,
@@ -303,8 +331,11 @@ export function SkillsProvider({ children }: { children: ReactNode }) {
       hiddenPersonIds,
       togglePersonVisibility,
       highlightedSkillKeys,
+      pinnedHighlightPersonId,
+      effectiveHighlightedSkillKeys,
       chartViewData,
       chartViewHistory,
+      chartViewSkillKeys,
       drillDownToDomain,
       chartGoBack,
       chartResetToOverview,

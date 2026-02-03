@@ -17,7 +17,7 @@ import type { SkillTableRow } from '@/types'
 export function SkillTable() {
   const data = useSkillTableData()
   const { highlightBySkillKey, clearHighlight } = useChartHighlight()
-  const { toggleSkillVisibility } = useSkillsContext()
+  const { toggleSkillVisibility, taxonomyData, isChartOverview, drillDownToDomain } = useSkillsContext()
 
   const columns: ColumnDef<SkillTableRow>[] = [
     {
@@ -61,6 +61,11 @@ export function SkillTable() {
           </button>
         )
       },
+    },
+    {
+      id: 'rank',
+      header: 'Rank',
+      cell: ({ row }) => <span className="text-muted-foreground tabular-nums">{row.index + 1}</span>,
     },
     { header: 'Skill', accessorKey: 'skillName', cell: ({ row }) => <span className="font-medium">{row.original.skillName}</span> },
     { header: 'Domain', accessorKey: 'domainName', cell: ({ row }) => row.original.domainName },
@@ -111,6 +116,12 @@ export function SkillTable() {
                   className="cursor-pointer"
                   onMouseEnter={() => highlightBySkillKey(row.original.skillKey)}
                   onMouseLeave={() => clearHighlight()}
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest('button')) return
+                    if (!isChartOverview || !taxonomyData?.children) return
+                    const domain = taxonomyData.children.find((d) => d.name === row.original.domainName)
+                    if (domain) drillDownToDomain(domain)
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
