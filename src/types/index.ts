@@ -39,14 +39,16 @@ export interface SkillTableRow {
   skillName: string
   domainName: string
   totalUsage: number
-  avgUsage: number
   contributorCount: number
+  unlockedUnionCount: number
+  totalSubSkills: number
   isVisible: boolean
   contributors: {
     personId: string
     personName: string
     usage: number
-    percentage: number
+    unlockedCount: number
+    totalSubSkills: number
   }[]
 }
 
@@ -74,4 +76,4 @@ export type SkillKeyMeta = {
   subSkillNames: Set<string>
 }
 
-export type PersonSkillMetrics = Map<string, { usage: number; unlockedCount: number }>
+export type PersonSkillMetrics = Map<string, { usage: number; unlockedCount: number; unlockedSubSkills: Set<string> }>

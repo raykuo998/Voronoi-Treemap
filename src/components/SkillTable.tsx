@@ -70,14 +70,31 @@ export function SkillTable() {
     { header: 'Skill', accessorKey: 'skillName', cell: ({ row }) => <span className="font-medium">{row.original.skillName}</span> },
     { header: 'Domain', accessorKey: 'domainName', cell: ({ row }) => row.original.domainName },
     {
-      header: 'Total usage',
+      header: 'Total utilization',
       accessorKey: 'totalUsage',
       cell: ({ row }) => row.original.totalUsage.toLocaleString(),
     },
     {
-      header: 'Avg usage',
-      accessorKey: 'avgUsage',
-      cell: ({ row }) => Math.round(row.original.avgUsage).toLocaleString(),
+      header: 'Total coverage',
+      id: 'totalCoverage',
+      cell: ({ row }) => {
+        const { unlockedUnionCount, totalSubSkills } = row.original
+        if (totalSubSkills === 0) return <span className="text-muted-foreground">—</span>
+        const pct = (unlockedUnionCount / totalSubSkills) * 100
+        return (
+          <div className="flex items-center gap-2 min-w-[120px]">
+            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary/80"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="tabular-nums text-xs text-muted-foreground w-8">
+              {unlockedUnionCount}/{totalSubSkills}
+            </span>
+          </div>
+        )
+      },
     },
     {
       header: 'Contributors',
@@ -140,28 +157,38 @@ export function SkillTable() {
                           <TableRow className="hover:bg-muted/30">
                             <TableHead className="w-8" />
                             <TableHead>Person</TableHead>
-                            <TableHead>Usage</TableHead>
-                            <TableHead>%</TableHead>
-                            <TableHead className="w-32">Bar</TableHead>
+                            <TableHead>Utilization</TableHead>
+                            <TableHead className="w-40">Coverage</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {row.original.contributors.map((c) => (
-                            <TableRow key={c.personId}>
-                              <TableCell />
-                              <TableCell>{c.personName}</TableCell>
-                              <TableCell>{c.usage}</TableCell>
-                              <TableCell>{c.percentage.toFixed(1)}%</TableCell>
-                              <TableCell>
-                                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full bg-primary/80"
-                                    style={{ width: `${Math.min(100, c.percentage)}%` }}
-                                  />
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                          {row.original.contributors.map((c) => {
+                            const pct = c.totalSubSkills > 0 ? (c.unlockedCount / c.totalSubSkills) * 100 : 0
+                            return (
+                              <TableRow key={c.personId}>
+                                <TableCell />
+                                <TableCell>{c.personName}</TableCell>
+                                <TableCell>{c.usage}</TableCell>
+                                <TableCell>
+                                  {c.totalSubSkills === 0 ? (
+                                    <span className="text-muted-foreground">—</span>
+                                  ) : (
+                                    <div className="flex items-center gap-2 min-w-[120px]">
+                                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                                        <div
+                                          className="h-full rounded-full bg-primary/80"
+                                          style={{ width: `${pct}%` }}
+                                        />
+                                      </div>
+                                      <span className="tabular-nums text-xs text-muted-foreground w-8">
+                                        {c.unlockedCount}/{c.totalSubSkills}
+                                      </span>
+                                    </div>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            )
+                          })}
                         </TableBody>
                       </Table>
                     </TableCell>

@@ -78,21 +78,23 @@ function buildPersonIdToSkillMetrics(
       const usageValue = Number.isFinite(usage) ? usage : 0
       const unlockedNames = Array.isArray(rec?.unlockedSubSkills) ? rec.unlockedSubSkills : []
       const meta = skillKeyToMeta.get(skillKey)
-      let unlockedCount = 0
+      const unlockedSubSkills = new Set<string>()
       if (meta?.subSkillNames?.size) {
-        const seen = new Set<string>()
         unlockedNames.forEach((n) => {
           const name = String(n ?? '').trim()
-          if (!name || seen.has(name)) return
+          if (!name || unlockedSubSkills.has(name)) return
           if (meta.subSkillNames.has(name)) {
-            unlockedCount += 1
-            seen.add(name)
+            unlockedSubSkills.add(name)
           }
         })
       } else {
-        unlockedCount = unlockedNames.length
+        unlockedNames.forEach((n) => {
+          const name = String(n ?? '').trim()
+          if (name) unlockedSubSkills.add(name)
+        })
       }
-      personIdToSkillMetrics.get(id)!.set(skillKey, { usage: usageValue, unlockedCount })
+      const unlockedCount = unlockedSubSkills.size
+      personIdToSkillMetrics.get(id)!.set(skillKey, { usage: usageValue, unlockedCount, unlockedSubSkills })
     })
   })
   return personIdToSkillMetrics

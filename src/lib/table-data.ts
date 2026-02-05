@@ -25,7 +25,8 @@ export function useSkillTableData(): SkillTableRow[] {
       if (!meta) return
       const totalUsage = agg.usageSum
       const contributorCount = agg.unlockedPeopleCount
-      const avgUsage = selectionAggSelectedCount > 0 ? totalUsage / selectionAggSelectedCount : 0
+      const totalSubSkills = meta.subSkillNames?.size ?? 0
+      const unlockedUnion = new Set<string>()
       const contributors: SkillTableRow['contributors'] = []
       selected.forEach((personId) => {
         const perSkill = personIdToSkillMetrics.get(personId)
@@ -34,8 +35,9 @@ export function useSkillTableData(): SkillTableRow[] {
         if (usage === 0) return
         const person = people.find((p) => String(p?.id ?? '').trim() === personId)
         const personName = person?.name ?? personId
-        const percentage = totalUsage > 0 ? (usage / totalUsage) * 100 : 0
-        contributors.push({ personId, personName, usage, percentage })
+        const unlockedCount = metric?.unlockedCount ?? 0
+        metric?.unlockedSubSkills?.forEach((name) => unlockedUnion.add(name))
+        contributors.push({ personId, personName, usage, unlockedCount, totalSubSkills })
       })
       contributors.sort((a, b) => b.usage - a.usage)
       rows.push({
@@ -43,8 +45,9 @@ export function useSkillTableData(): SkillTableRow[] {
         skillName: meta.skillName,
         domainName: meta.domainName,
         totalUsage,
-        avgUsage,
         contributorCount,
+        unlockedUnionCount: unlockedUnion.size,
+        totalSubSkills,
         isVisible: !hiddenSkillKeys.has(skillKey),
         contributors,
       })
