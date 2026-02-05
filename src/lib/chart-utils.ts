@@ -38,6 +38,12 @@ export function getDomainColorScheme(domainName: string): (t: number) => string 
   return domainColorSchemes[domainName] ?? d3.interpolateRainbow
 }
 
+export function getDomainSolidColor(domainName: string): string {
+  const scheme = domainColorSchemes[domainName]
+  if (!scheme) return '#888888'
+  return scheme(0.6)
+}
+
 export function createUsageScale(values: number[]): (usage: number) => number {
   const numeric = values.filter((v) => Number.isFinite(v))
   const extent = d3.extent(numeric)

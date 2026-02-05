@@ -63,6 +63,8 @@ export interface PersonTableRow {
     skillName: string
     domain: string
     usage: number
+    unlockedCount: number
+    totalSubSkills: number
   }[]
 }
 

@@ -73,6 +73,7 @@ export function usePersonTableData(): PersonTableRow[] {
     selectionAggSelectedCount,
     hiddenPersonIds,
     chartViewSkillKeys,
+    skillKeyToMeta,
   } = useSkillsContext()
 
   return useMemo(() => {
@@ -106,7 +107,10 @@ export function usePersonTableData(): PersonTableRow[] {
         totalUsage += usage
         const [domain, skillName] = skillKey.includes('::') ? skillKey.split('::') : ['', skillKey]
         if (domain) domainSums[domain] = (domainSums[domain] ?? 0) + usage
-        skills.push({ skillKey, skillName, domain, usage })
+        const meta = skillKeyToMeta.get(skillKey)
+        const totalSubSkills = meta?.subSkillNames?.size ?? 0
+        const unlockedCount = metric?.unlockedCount ?? 0
+        skills.push({ skillKey, skillName, domain, usage, unlockedCount, totalSubSkills })
       })
 
       if (chartViewSkillKeys && skills.length === 0) return
