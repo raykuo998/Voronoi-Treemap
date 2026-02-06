@@ -70,13 +70,13 @@ export function SkillTable() {
     { header: 'Skill', accessorKey: 'skillName', cell: ({ row }) => <span className="font-medium">{row.original.skillName}</span> },
     { header: 'Domain', accessorKey: 'domainName', cell: ({ row }) => row.original.domainName },
     {
-      header: 'Total utilization',
+      header: 'Total skill usage',
       accessorKey: 'totalUsage',
       cell: ({ row }) => row.original.totalUsage.toLocaleString(),
     },
     {
-      header: 'Total coverage',
-      id: 'totalCoverage',
+      header: 'Total skill completion',
+      id: 'totalSkillCompletion',
       cell: ({ row }) => {
         const { unlockedUnionCount, totalSubSkills } = row.original
         if (totalSubSkills === 0) return <span className="text-muted-foreground">—</span>
@@ -157,8 +157,8 @@ export function SkillTable() {
                           <TableRow className="hover:bg-muted/30">
                             <TableHead className="w-8" />
                             <TableHead>Person</TableHead>
-                            <TableHead>Utilization</TableHead>
-                            <TableHead className="w-40">Coverage</TableHead>
+                            <TableHead>Skill usage</TableHead>
+                            <TableHead className="w-40">Skill completion</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>

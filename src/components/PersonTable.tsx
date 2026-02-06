@@ -76,7 +76,7 @@ function SkillSubTable({ skills }: { skills: SkillRow[] }) {
           className="-ml-4 h-8"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Utilization
+          Skill usage
           {column.getIsSorted() === 'desc' ? (
             <ArrowDown className="ml-2 size-4" />
           ) : column.getIsSorted() === 'asc' ? (
@@ -89,7 +89,7 @@ function SkillSubTable({ skills }: { skills: SkillRow[] }) {
       cell: ({ row }) => row.original.usage,
     },
     {
-      id: 'coverage',
+      id: 'skillCompletion',
       accessorFn: (row) => (row.totalSubSkills > 0 ? row.unlockedCount / row.totalSubSkills : 0),
       header: ({ column }) => (
         <Button
@@ -97,7 +97,7 @@ function SkillSubTable({ skills }: { skills: SkillRow[] }) {
           className="-ml-4 h-8"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Coverage
+          Skill completion
           {column.getIsSorted() === 'desc' ? (
             <ArrowDown className="ml-2 size-4" />
           ) : column.getIsSorted() === 'asc' ? (
@@ -143,7 +143,7 @@ function SkillSubTable({ skills }: { skills: SkillRow[] }) {
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id} className="hover:bg-muted/30">
             {headerGroup.headers.map((header) => (
-              <TableHead key={header.id} className={header.id === 'spacer' ? 'w-8' : header.id === 'coverage' ? 'w-40' : undefined}>
+              <TableHead key={header.id} className={header.id === 'spacer' ? 'w-8' : header.id === 'skillCompletion' ? 'w-40' : undefined}>
                 {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
               </TableHead>
             ))}
@@ -225,7 +225,7 @@ export function PersonTable() {
     },
     {
       accessorKey: 'totalUsage',
-      header: 'Total usage',
+      header: 'Total skill usage',
       cell: ({ row }) => row.original.totalUsage.toLocaleString(),
     },
     {

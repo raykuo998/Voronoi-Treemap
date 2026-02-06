@@ -160,7 +160,7 @@ This means two people can have completely different skill sets (e.g. A has Pytho
 
 ## 🧪 Generate a large rich dataset
 
-If you want lots of people with dense skill coverage, you can generate a big `people.json` automatically:
+If you want lots of people with dense skill completion, you can generate a big `people.json` automatically:
 
 ```bash
 node scripts/generate_people.mjs --count 200 --out people.json --seed 42

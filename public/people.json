@@ -343,7 +343,7 @@
           "usage": 85,
           "unlockedSubSkills": [
             "Unit tests",
-            "Coverage",
+            "Skill Completion",
             "Mocks"
           ]
         },
@@ -476,7 +476,7 @@
           "skill": "Jest",
           "usage": 83,
           "unlockedSubSkills": [
-            "Coverage",
+            "Skill Completion",
             "Unit tests",
             "Mocks"
           ]
@@ -563,7 +563,7 @@
           "usage": 91,
           "unlockedSubSkills": [
             "Mocks",
-            "Coverage",
+            "Skill Completion",
             "Unit tests"
           ]
         },
@@ -1263,7 +1263,7 @@
           "usage": 82,
           "unlockedSubSkills": [
             "Mocks",
-            "Coverage",
+            "Skill Completion",
             "Unit tests"
           ]
         },
